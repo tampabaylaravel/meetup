@@ -114,4 +114,9 @@ return [
 
     'password_timeout' => 10800,
 
+    'jwt' => [
+        'issuer' => env('JWT_ISSUER'),
+        'secret' => env('JWT_SECRET'),
+        'expires_in_minutes' => env('JWT_EXPIRES_IN_MINUTES'),
+    ],
 ];
