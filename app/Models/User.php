@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -36,4 +36,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function meetings()
+    {
+        return $this->hasMany(Meeting::class);
+    }
+
+    public function attending()
+    {
+        return $this->belongsToMany(Meeting::class)
+                    ->withPivot(['attending'])
+                    ->withTimestamps();
+    }
 }
