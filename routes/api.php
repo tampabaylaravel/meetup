@@ -24,4 +24,6 @@ Route::group([
 ], function() {
     Route::post('login', 'LoginController@store')->name('login');
     Route::post('register', 'RegisterController@store')->name('register');
+    Route::post('forgot', 'ForgotPasswordController')->name('forgot');
+    Route::post('reset-password', 'ResetPasswordController')->name('reset-password');
 });
