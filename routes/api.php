@@ -23,4 +23,5 @@ Route::group([
     'namespace' => 'Auth'
 ], function() {
     Route::post('login', 'LoginController@store')->name('login');
+    Route::post('register', 'RegisterController@store')->name('register');
 });
