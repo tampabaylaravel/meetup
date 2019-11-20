@@ -15,6 +15,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// this is here because the email the framework sends on a password reset event
+// requires this named route.
+// when we add in the catch all for the api, make sure it is defined above this.
 Route::get('/password/reset', function () {
 
 })->name('password.reset');
