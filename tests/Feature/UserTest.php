@@ -48,7 +48,7 @@ class UserTest extends TestCase
     public function users_can_authenticate_with_a_bearer_token()
     {
         $this->getJson(route('user.index'), [
-            'HTTP_Authorization' => 'Bearer ' . $this->createJWT($this->user)
+            'Authorization' => 'Bearer ' . $this->createJWT($this->user)
         ])->assertStatus(200);
     }
 
@@ -56,7 +56,7 @@ class UserTest extends TestCase
     public function a_401_is_returned_if_there_is_no_bearer_token()
     {
         $this->getJson(route('user.index'), [
-            'HTTP_Authorization' => null
+            'Authorization' => null
         ])->assertStatus(401);
     }
 
@@ -69,7 +69,7 @@ class UserTest extends TestCase
         ]);
 
         $this->getJson(route('user.index'), [
-            'HTTP_Authorization' => 'Bearer ' . $expiredToken
+            'Authorization' => 'Bearer ' . $expiredToken
         ])->assertStatus(419);
     }
 
@@ -77,11 +77,11 @@ class UserTest extends TestCase
     public function a_400_is_returned_if_the_token_was_generated_for_a_user_that_doesnt_exist()
     {
         $invalidToken = $this->createJWT($this->user, [
-            'sub' => 1000000, // a user id that doesn't exist
+            'sub' => User::max('id') + 1, // a user id that doesn't exist
         ]);
 
         $this->getJson(route('user.index'), [
-            'HTTP_Authorization' => 'Bearer ' . $invalidToken
+            'Authorization' => 'Bearer ' . $invalidToken
         ])->assertStatus(400);
     }
 }

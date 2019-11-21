@@ -42,7 +42,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         Auth::viaRequest('jwt', function ($request) {
             $token = $request->bearerToken();
-            abort_if(! $token, 401, 'Token not provided.');
+            abort_unless($token, 401, 'Token not provided.');
 
             try {
                 $credentials = $this->decodeJWT($token);
@@ -53,7 +53,7 @@ class AuthServiceProvider extends ServiceProvider
             }
 
             $user = User::find($credentials->sub);
-            abort_if(! $user, 400, 'Email or password is wrong.');
+            abort_unless($user, 400, 'Email or password is wrong.');
 
             return $user;
         });

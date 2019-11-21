@@ -48,11 +48,11 @@ class LoginTest extends TestCase
     /** @test */
     public function a_user_can_login_and_retrieve_a_valid_token()
     {
-        $request = $this->postJson(route('auth.login'), $this->validParamaters());
+        $response = $this->postJson(route('auth.login'), $this->validParamaters());
 
-        $request->assertStatus(200);
+        $response->assertStatus(200);
 
-        $token = $request->getData()->token;
+        $token = $response->getData()->token;
         $this->assertNotNull($token);
 
         $decodedToken = $this->decodeJWT($token);
@@ -62,51 +62,54 @@ class LoginTest extends TestCase
     /** @test */
     public function an_email_is_required_to_login()
     {
-        $request = $this->postJson(route('auth.login'), $this->validParamaters([
+        $response = $this->postJson(route('auth.login'), $this->validParamaters([
             'email' => null,
         ]));
 
-        $request->assertJsonValidationErrors('email');
+        $response->assertJsonValidationErrors('email');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_valid_email_is_required_to_login()
     {
-        $request = $this->postJson(route('auth.login'), $this->validParamaters([
+        $response = $this->postJson(route('auth.login'), $this->validParamaters([
             'email' => 'not-an-email-address',
         ]));
 
-        $request->assertJsonValidationErrors('email');
+        $response->assertJsonValidationErrors('email');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_password_is_required_to_login()
     {
-        $request = $this->postJson(route('auth.login'), $this->validParamaters([
+        $response = $this->postJson(route('auth.login'), $this->validParamaters([
             'password' => null,
         ]));
 
-        $request->assertJsonValidationErrors('password');
+        $response->assertJsonValidationErrors('password');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_400_response_will_be_returned_if_you_use_an_email_that_doesnt_exist()
     {
-        $request = $this->postJson(route('auth.login'), $this->validParamaters([
+        $response = $this->postJson(route('auth.login'), $this->validParamaters([
             'email' => 'non-existant-email@example.org',
         ]));
 
-        $request->assertStatus(400);
+        $response->assertStatus(400);
     }
 
     /** @test */
     public function a_400_response_will_be_returned_if_you_use_an_invalid_passowrd()
     {
-        $request = $this->postJson(route('auth.login'), $this->validParamaters([
+        $response = $this->postJson(route('auth.login'), $this->validParamaters([
             'password' => 'not the right password for this user',
         ]));
 
-        $request->assertStatus(400);
+        $response->assertStatus(400);
     }
 
     /** @test */
@@ -118,9 +121,9 @@ class LoginTest extends TestCase
         $this->badLoginAttempt();
         $this->badLoginAttempt();
 
-        $request = $this->badLoginAttempt();
+        $response = $this->badLoginAttempt();
 
-        $request->assertStatus(429);
+        $response->assertStatus(429);
     }
 
     /**
@@ -143,9 +146,9 @@ class LoginTest extends TestCase
         $this->badLoginAttempt();
         Carbon::setTestNow(now()->addSeconds(59));
 
-        $request = $this->badLoginAttempt();
+        $response = $this->badLoginAttempt();
 
-        $request->assertStatus(429);
+        $response->assertStatus(429);
     }
 
     /** @test */
@@ -158,8 +161,8 @@ class LoginTest extends TestCase
         $this->badLoginAttempt();
         Carbon::setTestNow(now()->addSeconds(61));
 
-        $request = $this->badLoginAttempt();
+        $response = $this->badLoginAttempt();
 
-        $request->assertStatus(400);
+        $response->assertStatus(400);
     }
 }

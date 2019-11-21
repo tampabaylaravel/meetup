@@ -27,9 +27,9 @@ class RegisterTest extends TestCase
     }
 
     /** @test */
-    public function a_guests_can_register_for_an_account()
+    public function a_guest_can_register_for_an_account_and_get_a_valid_token()
     {
-        $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'name' => 'Test User Name',
             'email' => 'test@example.org',
         ]))->assertStatus(200);
@@ -37,88 +37,89 @@ class RegisterTest extends TestCase
         $user = User::first();
         $this->assertEquals('Test User Name', $user->name);
         $this->assertEquals('test@example.org', $user->email);
-    }
 
-    /** @test */
-    public function a_valid_token_is_returned_when_the_user_registers()
-    {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters());
-
-        $token = $request->getData()->token;
+        $token = $response->getData()->token;
         $this->assertNotNull($token);
 
         $decodedToken = $this->decodeJWT($token);
-        $this->assertEquals(User::first()->getKey(), $decodedToken->sub);
+        $this->assertEquals($user->getKey(), $decodedToken->sub);
     }
 
     /** @test */
-    public function an_name_is_required()
+    public function a_name_is_required()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'name' => null,
         ]));
 
-        $request->assertJsonValidationErrors('name');
+        $response->assertJsonValidationErrors('name');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_name_must_be_a_string()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'name' => 12345,
         ]));
 
-        $request->assertJsonValidationErrors('name');
+        $response->assertJsonValidationErrors('name');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_name_cannot_be_longer_than_255_characters()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'name' => str_repeat('a', 256),
         ]));
 
-        $request->assertJsonValidationErrors('name');
+        $response->assertJsonValidationErrors('name');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function an_email_is_required()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'email' => null,
         ]));
 
-        $request->assertJsonValidationErrors('email');
+        $response->assertJsonValidationErrors('email');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function an_email_must_be_a_string()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'email' => 12345,
         ]));
 
-        $request->assertJsonValidationErrors('email');
+        $response->assertJsonValidationErrors('email');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function an_email_cannot_be_longer_than_255_characters()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'email' => str_repeat('1', 255) . '@example.org',
         ]));
 
-        $request->assertJsonValidationErrors('email');
+        $response->assertJsonValidationErrors('email');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function an_email_must_be_a_valid_email()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'email' => 'not-a-valid-email',
         ]));
 
-        $request->assertJsonValidationErrors('email');
+        $response->assertJsonValidationErrors('email');
+        $response->assertStatus(422);
     }
 
     /** @test */
@@ -126,51 +127,56 @@ class RegisterTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'email' => $user->email,
         ]));
 
-        $request->assertJsonValidationErrors('email');
+        $response->assertJsonValidationErrors('email');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_password_is_required()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'password' => null,
         ]));
 
-        $request->assertJsonValidationErrors('password');
+        $response->assertJsonValidationErrors('password');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_password_must_be_a_string()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'password' => 12345,
         ]));
 
-        $request->assertJsonValidationErrors('password');
+        $response->assertJsonValidationErrors('password');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_password_must_be_atleast_8_characters()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'password' => '1234567',
         ]));
 
-        $request->assertJsonValidationErrors('password');
+        $response->assertJsonValidationErrors('password');
+        $response->assertStatus(422);
     }
 
     /** @test */
     public function a_password_must_be_confirmed()
     {
-        $request = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson(route('auth.register'), $this->validParamaters([
             'password' => 'password',
             'password_confirmation' => 'not-the-same-password',
         ]));
 
-        $request->assertJsonValidationErrors('password');
+        $response->assertJsonValidationErrors('password');
+        $response->assertStatus(422);
     }
 }

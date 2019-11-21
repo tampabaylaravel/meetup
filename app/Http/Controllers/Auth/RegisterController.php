@@ -29,6 +29,6 @@ class RegisterController extends Controller
             'password' => Hash::make($request->input('password')),
         ]);
 
-        return response()->json(['token' => $this->createJWT($user)], 200);
+        return response()->json(['token' => $this->createJWT($user)]);
     }
 }

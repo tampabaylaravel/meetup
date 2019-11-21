@@ -44,7 +44,7 @@ class LoginController extends Controller
             return $this->sendLockoutResponse($request);
         }
 
-        $user = User::whereEmail($request->input('email'))->first();
+        $user = User::where('email', $request->input('email'))->first();
 
         if (! $user || ! $this->verifyPasswordFor($user, $request->input('password'))) {
             $this->incrementLoginAttempts($request);
@@ -54,7 +54,7 @@ class LoginController extends Controller
 
         $this->clearLoginAttempts($request);
 
-        return response()->json(['token' => $this->createJWT($user)], 200);
+        return response()->json(['token' => $this->createJWT($user)]);
     }
 
     /**
