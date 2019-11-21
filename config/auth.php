@@ -117,6 +117,6 @@ return [
     'jwt' => [
         'issuer' => env('JWT_ISSUER'),
         'secret' => env('JWT_SECRET'),
-        'expires_in_minutes' => env('JWT_EXPIRES_IN_MINUTES'),
+        'expires_in_minutes' => env('JWT_EXPIRES_IN_MINUTES', 60),
     ],
 ];
