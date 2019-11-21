@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 Route::group([
     'prefix' => 'auth',
     'as' => 'auth.',
-    'namespace' => 'Auth'
+    'namespace' => 'Auth',
 ], function() {
     Route::post('login', 'LoginController@store')->name('login');
     Route::post('register', 'RegisterController@store')->name('register');
@@ -27,7 +27,7 @@ Route::group([
 Route::group([
     'prefix' => 'user',
     'as' => 'user.',
-    'middleware' => 'auth:api'
+    'middleware' => 'auth:api',
 ], function() {
     Route::get('/', function (Request $request) {
         return $request->user();
