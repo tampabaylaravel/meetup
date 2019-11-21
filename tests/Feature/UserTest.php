@@ -13,6 +13,11 @@ class UserTest extends TestCase
     use RefreshDatabase, InteractsWithJWT;
 
     /**
+     * @var string
+     */
+    protected $route;
+
+    /**
      * @var User
      */
     protected $user;
@@ -27,37 +32,46 @@ class UserTest extends TestCase
         parent::setUp();
 
         $this->user = factory(User::class)->create();
+
+        $this->route = route('user.index');
+    }
+
+    /**
+     * @param  int $statusCode
+     * @param  string|null $token
+     * @return void
+     */
+    public function tokenTest($statusCode, $token)
+    {
+        $this->getJson($this->route, [
+            'Authorization' => 'Bearer ' . $token
+        ])->assertStatus($statusCode);
     }
 
     /** @test */
     public function guests_cannot_access_the_user_route()
     {
-        $this->getJson(route('user.index'))
-            ->assertStatus(401);
+        $this->getJson($this->route)->assertStatus(401);
     }
 
     /** @test */
     public function users_can_access_the_user_route()
     {
         $this->actingAs($this->user, 'api')
-            ->getJson(route('user.index'))
+            ->getJson($this->route)
             ->assertStatus(200);
     }
 
     /** @test */
     public function users_can_authenticate_with_a_bearer_token()
     {
-        $this->getJson(route('user.index'), [
-            'Authorization' => 'Bearer ' . $this->createJWT($this->user)
-        ])->assertStatus(200);
+        $this->tokenTest(200, $this->createJWT($this->user));
     }
 
     /** @test */
     public function a_401_is_returned_if_there_is_no_bearer_token()
     {
-        $this->getJson(route('user.index'), [
-            'Authorization' => null
-        ])->assertStatus(401);
+        $this->tokenTest(401, null);
     }
 
     /** @test */
@@ -68,9 +82,7 @@ class UserTest extends TestCase
             'exp' => time() - 1
         ]);
 
-        $this->getJson(route('user.index'), [
-            'Authorization' => 'Bearer ' . $expiredToken
-        ])->assertStatus(419);
+        $this->tokenTest(419, $expiredToken);
     }
 
     /** @test */
@@ -80,8 +92,6 @@ class UserTest extends TestCase
             'sub' => User::max('id') + 1, // a user id that doesn't exist
         ]);
 
-        $this->getJson(route('user.index'), [
-            'Authorization' => 'Bearer ' . $invalidToken
-        ])->assertStatus(400);
+        $this->tokenTest(400, $invalidToken);
     }
 }

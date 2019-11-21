@@ -19,6 +19,11 @@ class LoginTest extends TestCase
     protected $user;
 
     /**
+     * @var string
+     */
+    protected $route;
+
+    /**
      * Setup the test environment.
      *
      * @return void
@@ -31,6 +36,19 @@ class LoginTest extends TestCase
             'email' => 'test@example.org',
             'password' => bcrypt('password'),
         ]);
+
+        $this->route = route('auth.login');
+    }
+
+    /**
+     * @param  array  $override
+     * @return void
+     */
+    private function assertValidationError($override = [])
+    {
+        $response = $this->postJson($this->route, $this->validParamaters($override));
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(array_keys($override));
     }
 
     /**
@@ -48,7 +66,7 @@ class LoginTest extends TestCase
     /** @test */
     public function a_user_can_login_and_retrieve_a_valid_token()
     {
-        $response = $this->postJson(route('auth.login'), $this->validParamaters());
+        $response = $this->postJson($this->route, $this->validParamaters());
 
         $response->assertStatus(200);
 
@@ -62,40 +80,25 @@ class LoginTest extends TestCase
     /** @test */
     public function an_email_is_required_to_login()
     {
-        $response = $this->postJson(route('auth.login'), $this->validParamaters([
-            'email' => null,
-        ]));
-
-        $response->assertJsonValidationErrors('email');
-        $response->assertStatus(422);
+        $this->assertValidationError(['email' => null]);
     }
 
     /** @test */
     public function a_valid_email_is_required_to_login()
     {
-        $response = $this->postJson(route('auth.login'), $this->validParamaters([
-            'email' => 'not-an-email-address',
-        ]));
-
-        $response->assertJsonValidationErrors('email');
-        $response->assertStatus(422);
+        $this->assertValidationError(['email' => 'not-an-email-address']);
     }
 
     /** @test */
     public function a_password_is_required_to_login()
     {
-        $response = $this->postJson(route('auth.login'), $this->validParamaters([
-            'password' => null,
-        ]));
-
-        $response->assertJsonValidationErrors('password');
-        $response->assertStatus(422);
+        $this->assertValidationError(['password' => null]);
     }
 
     /** @test */
     public function a_400_response_will_be_returned_if_you_use_an_email_that_doesnt_exist()
     {
-        $response = $this->postJson(route('auth.login'), $this->validParamaters([
+        $response = $this->postJson($this->route, $this->validParamaters([
             'email' => 'non-existant-email@example.org',
         ]));
 
@@ -105,7 +108,7 @@ class LoginTest extends TestCase
     /** @test */
     public function a_400_response_will_be_returned_if_you_use_an_invalid_passowrd()
     {
-        $response = $this->postJson(route('auth.login'), $this->validParamaters([
+        $response = $this->postJson($this->route, $this->validParamaters([
             'password' => 'not the right password for this user',
         ]));
 
@@ -131,7 +134,7 @@ class LoginTest extends TestCase
      */
     private function badLoginAttempt()
     {
-        return $this->postJson(route('auth.login'), $this->validParamaters([
+        return $this->postJson($this->route, $this->validParamaters([
             'password' => 'invalid',
         ]));
     }

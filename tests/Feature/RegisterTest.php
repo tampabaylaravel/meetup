@@ -13,6 +13,40 @@ class RegisterTest extends TestCase
     use RefreshDatabase, InteractsWithJWT;
 
     /**
+     * @var string
+     */
+    protected $route;
+
+    /**
+     * Setup the test environment.
+     *
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->route = route('auth.register');
+    }
+
+    /**
+     * @param  array  $override
+     * @return void
+     */
+    private function assertValidationError($override = [])
+    {
+        $response = $this->postJson($this->route, $this->validParamaters($override));
+
+        $response->assertStatus(422);
+
+        if (array_key_exists('password_confirmation', $override)) {
+            unset($override['password_confirmation']);
+        }
+
+        $response->assertJsonValidationErrors(array_keys($override));
+    }
+
+    /**
      * @param  array  $override
      * @return array
      */
@@ -29,7 +63,7 @@ class RegisterTest extends TestCase
     /** @test */
     public function a_guest_can_register_for_an_account_and_get_a_valid_token()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
+        $response = $this->postJson($this->route, $this->validParamaters([
             'name' => 'Test User Name',
             'email' => 'test@example.org',
         ]))->assertStatus(200);
@@ -48,78 +82,43 @@ class RegisterTest extends TestCase
     /** @test */
     public function a_name_is_required()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'name' => null,
-        ]));
-
-        $response->assertJsonValidationErrors('name');
-        $response->assertStatus(422);
+        $this->assertValidationError(['name' => null]);
     }
 
     /** @test */
     public function a_name_must_be_a_string()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'name' => 12345,
-        ]));
-
-        $response->assertJsonValidationErrors('name');
-        $response->assertStatus(422);
+        $this->assertValidationError(['name' => 12345]);
     }
 
     /** @test */
     public function a_name_cannot_be_longer_than_255_characters()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'name' => str_repeat('a', 256),
-        ]));
-
-        $response->assertJsonValidationErrors('name');
-        $response->assertStatus(422);
+        $this->assertValidationError(['name' => str_repeat('a', 256)]);
     }
 
     /** @test */
     public function an_email_is_required()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'email' => null,
-        ]));
-
-        $response->assertJsonValidationErrors('email');
-        $response->assertStatus(422);
+        $this->assertValidationError(['email' => null]);
     }
 
     /** @test */
     public function an_email_must_be_a_string()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'email' => 12345,
-        ]));
-
-        $response->assertJsonValidationErrors('email');
-        $response->assertStatus(422);
+        $this->assertValidationError(['email' => 12345]);
     }
 
     /** @test */
     public function an_email_cannot_be_longer_than_255_characters()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'email' => str_repeat('1', 255) . '@example.org',
-        ]));
-
-        $response->assertJsonValidationErrors('email');
-        $response->assertStatus(422);
+        $this->assertValidationError(['email' => str_repeat('1', 255) . '@example.org']);
     }
 
     /** @test */
     public function an_email_must_be_a_valid_email()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'email' => 'not-a-valid-email',
-        ]));
-
-        $response->assertJsonValidationErrors('email');
-        $response->assertStatus(422);
+        $this->assertValidationError(['email' => 'not-a-valid-email']);
     }
 
     /** @test */
@@ -127,56 +126,33 @@ class RegisterTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'email' => $user->email,
-        ]));
-
-        $response->assertJsonValidationErrors('email');
-        $response->assertStatus(422);
+        $this->assertValidationError(['email' => $user->email]);
     }
 
     /** @test */
     public function a_password_is_required()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'password' => null,
-        ]));
-
-        $response->assertJsonValidationErrors('password');
-        $response->assertStatus(422);
+        $this->assertValidationError(['password' => null]);
     }
 
     /** @test */
     public function a_password_must_be_a_string()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'password' => 12345,
-        ]));
-
-        $response->assertJsonValidationErrors('password');
-        $response->assertStatus(422);
+        $this->assertValidationError(['password' => 12345]);
     }
 
     /** @test */
     public function a_password_must_be_atleast_8_characters()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
-            'password' => '1234567',
-        ]));
-
-        $response->assertJsonValidationErrors('password');
-        $response->assertStatus(422);
+        $this->assertValidationError(['password' => '1234567']);
     }
 
     /** @test */
     public function a_password_must_be_confirmed()
     {
-        $response = $this->postJson(route('auth.register'), $this->validParamaters([
+        $this->assertValidationError([
             'password' => 'password',
             'password_confirmation' => 'not-the-same-password',
-        ]));
-
-        $response->assertJsonValidationErrors('password');
-        $response->assertStatus(422);
+        ]);
     }
 }
