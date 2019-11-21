@@ -89,7 +89,7 @@ class UserTest extends TestCase
     public function a_400_is_returned_if_the_token_was_generated_for_a_user_that_doesnt_exist()
     {
         $invalidToken = $this->createJWT($this->user, [
-            'sub' => User::max('id') + 1, // a user id that doesn't exist
+            'sub' => User::withTrashed()->max('id') + 1, // a user id that doesn't exist
         ]);
 
         $this->tokenTest(400, $invalidToken);
