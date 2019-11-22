@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use Firebase\JWT\JWT;
+use Illuminate\Support\Arr;
 use App\Traits\InteractsWithJWT;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -39,9 +40,7 @@ class RegisterTest extends TestCase
 
         $response->assertStatus(422);
 
-        if (array_key_exists('password_confirmation', $override)) {
-            unset($override['password_confirmation']);
-        }
+        Arr::forget($override, 'password_confirmation');
 
         $response->assertJsonValidationErrors(array_keys($override));
     }
