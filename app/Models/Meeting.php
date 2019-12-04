@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations;
 
 /**
  * Class Meeting
@@ -21,10 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Meeting extends Model
 {
-    const USER_ATTENDING = 'yes';
-    const USER_NOT_ATTENDING = 'no';
-    const USER_MAYBE_ATTENDING = 'maybe';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -44,15 +41,21 @@ class Meeting extends Model
         'end_time'   => 'datetime'
     ];
 
+    /**
+     * Get meeting User (owner)
+     * @return Relations\BelongsTo User
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get meeting Users (attendees)
+     * @return Relations\BelongsToMany Collection of Users
+     */
     public function attendees()
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot(['attending'])
-            ->withTimestamps();
+        return $this->belongsToMany(User::class, 'attendees');
     }
 }

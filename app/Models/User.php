@@ -37,15 +37,24 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * Get meetings owned by user
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function meetings()
     {
         return $this->hasMany(Meeting::class);
     }
 
+    /**
+     * Get meetings attended by user
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function attending()
     {
-        return $this->belongsToMany(Meeting::class)
-                    ->withPivot(['attending'])
-                    ->withTimestamps();
+//        return $this->belongsToMany(Meeting::class)
+//                    ->withPivot(['attending'])
+//                    ->withTimestamps();
+        return $this->belongsToMany(Meeting::class, 'attendees');
     }
 }
