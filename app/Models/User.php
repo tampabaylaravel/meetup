@@ -3,9 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Class User
+ *
+ * @package App\Models
+ * @version 1.0
+ *
+ * @property Meeting $meeting Meetings organized/owned by user
+ * @property Collection $appends Collection of meeting attendance states (links to meeting)
+ */
 class User extends Authenticatable
 {
     use Notifiable;
@@ -39,7 +51,7 @@ class User extends Authenticatable
 
     /**
      * Get meetings owned by user
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function meetings()
     {
@@ -47,14 +59,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Get meetings attended by user
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * Get attendance records by user to meetings
+     * @return HasMany
      */
-    public function attending()
+    public function attends()
     {
-//        return $this->belongsToMany(Meeting::class)
-//                    ->withPivot(['attending'])
-//                    ->withTimestamps();
-        return $this->belongsToMany(Meeting::class, 'attendees');
+        return $this->hasMany(Attend::class);
     }
 }

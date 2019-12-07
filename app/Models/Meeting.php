@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 
@@ -13,12 +14,15 @@ use Illuminate\Database\Eloquent\Relations;
  * @package App\Models
  * @version 1.0
  *
+ * @property int $id
  * @property int $user_id
  * @property string $name
  * @property string $description
  * @property string $location
  * @property Carbon $start_time
  * @property Carbon $end_time
+ * @property User $user Meeting organizer/owner
+ * @property Collection $attends Collection of meeting attendance records (links to users)
  */
 class Meeting extends Model
 {
@@ -42,7 +46,7 @@ class Meeting extends Model
     ];
 
     /**
-     * Get meeting User (owner)
+     * Get meeting User (owner/organizer)
      * @return Relations\BelongsTo User
      */
     public function user()
@@ -52,10 +56,10 @@ class Meeting extends Model
 
     /**
      * Get meeting Users (attendees)
-     * @return Relations\BelongsToMany Collection of Users
+     * @return Relations\HasMany
      */
-    public function attendees()
+    public function attends()
     {
-        return $this->belongsToMany(User::class, 'attendees');
+        return $this->hasMany(Attend::class);
     }
 }

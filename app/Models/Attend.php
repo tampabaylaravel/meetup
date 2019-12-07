@@ -2,18 +2,23 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 
 /**
- * Class Meeting
+ * Class Attend
  *
  * @author David Fairbanks <david@makerdave.com>
  * @package App\Models
  * @version 1.0
+ *
+ * @property int $user_id
+ * @property int $meeting_id
+ * @property string $attending
+ * @property User $user Meeting attendee
+ * @property Meeting $meeting
  */
-class Attendees extends Model
+class Attend extends Model
 {
     const USER_ATTENDING = 'yes';
     const USER_NOT_ATTENDING = 'no';
@@ -28,6 +33,11 @@ class Attendees extends Model
         'user_id', 'meeting_id', 'attending'
     ];
 
+    public static function attendingEnumeration()
+    {
+        return[self::USER_ATTENDING, self::USER_NOT_ATTENDING, self::USER_MAYBE_ATTENDING];
+    }
+
     /**
      * @param $state
      *
@@ -35,7 +45,7 @@ class Attendees extends Model
      */
     public function setAttendingAttribute($state)
     {
-        if(!in_array($state, [self::USER_ATTENDING, self::USER_NOT_ATTENDING, self::USER_MAYBE_ATTENDING]))
+        if(!in_array($state, self::attendingEnumeration()))
             throw new \Exception('Invalid attending state');
 
         $this->attributes['attending'] = $state;
