@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -56,7 +57,13 @@ class ResetPasswordController extends Controller
      */
     protected function sendResetResponse(Request $request, $response)
     {
-        return response()->json(['message' => 'Password reset successfully.']);
+        $statusCodes = [
+            PasswordBroker::PASSWORD_RESET => 200,
+            PasswordBroker::INVALID_USER => 400,
+            PasswordBroker::INVALID_TOKEN => 401,
+        ];
+
+        return response()->json(['message' => trans($response)], $statusCodes[$response]);
     }
 
     /**
@@ -68,6 +75,6 @@ class ResetPasswordController extends Controller
      */
     protected function sendResetFailedResponse(Request $request, $response)
     {
-        return response()->json(['message' => 'Failed, Invalid Token.'], 401);
+        return $this->sendResetResponse($request, $response);
     }
 }

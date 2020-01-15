@@ -92,7 +92,7 @@ class ResetPasswordTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertTrue(Hash::check('newpassword', $this->user->fresh()->password));
-        $this->assertEquals('Password reset successfully.', $response->getData()->message);
+        $this->assertEquals('Your password has been reset!', $response->getData()->message);
     }
 
     /** @test */
@@ -123,7 +123,23 @@ class ResetPasswordTest extends TestCase
         ]));
 
         $this->assertTrue(Hash::check('password', $this->user->fresh()->password));
-        $this->assertEquals('Failed, Invalid Token.', $response->getData()->message);
+        $this->assertEquals('This password reset token is invalid.', $response->getData()->message);
         $response->assertStatus(401);
+    }
+
+    /** @test */
+    public function a_valid_email_must_be_sent_to_reset_their_password()
+    {
+        $this->assertTrue(Hash::check('password', $this->user->password));
+
+        $response = $this->postJson(route('auth.reset-password'), $this->validParamaters([
+            'email' => 'invalid@email.com',
+            'password' => 'newpassword',
+            'password_confirmation' => 'newpassword',
+            'token' => Password::createToken($this->user),
+        ]));
+
+        $this->assertEquals("We can't find a user with that e-mail address.", $response->getData()->message);
+        $response->assertStatus(400);
     }
 }
