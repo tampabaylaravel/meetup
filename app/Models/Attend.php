@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
+use Illuminate\Support\Str;
 
 /**
  * Class Attend
@@ -23,6 +25,8 @@ class Attend extends Model
     const USER_ATTENDING = 'yes';
     const USER_NOT_ATTENDING = 'no';
     const USER_MAYBE_ATTENDING = 'maybe';
+
+    const USER_RELATION_DOT_NOTATION = 'user.';
 
     /**
      * The attributes that are mass assignable.
@@ -65,5 +69,28 @@ class Attend extends Model
     public function meeting()
     {
         return $this->belongsTo(Meeting::class);
+    }
+
+    public function scopeSearch($builder, array $params = [])
+    {
+        return $builder->when(
+            isset($params['attending']), function (Builder $builder) use ($params) {
+            $builder->whereIn('attending', collect($params['attending']));
+        }, function (Builder $builder) use ($params) {
+            collect($params)
+                ->filter(fn($value, $key) => Str::startsWith($key, self::USER_RELATION_DOT_NOTATION))
+                ->each(
+                    function ($param, $field) use ($builder) {
+                        $builder->whereHas(
+                            'user',
+                            function ($query) use ($field, $param) {
+                                $relationshipAttribute = Str::after($field, self::USER_RELATION_DOT_NOTATION);
+                                $query->where($relationshipAttribute, $param);
+                            }
+                        );
+                    }
+                );
+        }
+        );
     }
 }

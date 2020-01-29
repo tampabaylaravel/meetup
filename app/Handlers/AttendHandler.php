@@ -57,25 +57,7 @@ class AttendHandler extends Handler
      */
     public static function search(Meeting $meeting, array $params=[])
     {
-        $builder = $meeting->attends();
-
-        if(isset($params['attending'])) {
-            if(is_string($params['attending'])) {
-                $builder->where(['attending' => $params['attending']]);
-            } elseif(is_array($params['attending'])) {
-                $builder->whereIn('attending', $params['attending']);
-            }
-        } else {
-            foreach($params as $field => $param) {
-                if(strpos($field, 'user.') === 0) {
-                    $builder->whereHas('user', function($query) use ($field, $param) {
-                        $query->where(substr($field, 5), $param);
-                    });
-                }
-            }
-        }
-
-        return $builder->get();
+        return $meeting->attends()->search($params)->get();
     }
 
     public static function update(Attend $attend, array $data=[])
