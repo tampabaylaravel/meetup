@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations;
 use Illuminate\Support\Str;
 
 /**
- * Class Attend
+ * Class Reservation
  *
  * @author David Fairbanks <david@makerdave.com>
  * @package App\Models
@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
  * @property Meeting $meeting
  * @method static Builder search(array $params = [])
  */
-class Attend extends Model
+class Reservation extends Model
 {
     const USER_ATTENDING = 'yes';
     const USER_NOT_ATTENDING = 'no';

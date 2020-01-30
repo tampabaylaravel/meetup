@@ -60,9 +60,9 @@ class Meeting extends Model
      * Get meeting Users (attendees)
      * @return Relations\HasMany
      */
-    public function attends()
+    public function reservations()
     {
-        return $this->hasMany(Attend::class);
+        return $this->hasMany(Reservation::class);
     }
 
     public function scopeSearch(Builder $builder, array $params = [])

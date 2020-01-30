@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\Attend;
+use App\Models\Reservation;
 use App\Models\Meeting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AttendTest extends TestCase
+class ReservationTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -21,7 +21,7 @@ class AttendTest extends TestCase
         $user = factory(User::class)->create();
 
         $response = $this->actingAs($user, 'api')->postJson(
-            route('api.meeting.attend.create', ['meeting' => $meeting->getKey()])
+            route('api.meeting.reservation.create', ['meeting' => $meeting->getKey()])
         );
 
         $response
@@ -36,17 +36,17 @@ class AttendTest extends TestCase
         $organizer->meetings()->save($meeting);
 
         $user1 = factory(User::class)->create();
-        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee = new Reservation(['attending' => Reservation::USER_ATTENDING]);
         $attendee->meeting()->associate($meeting);
-        $user1->attends()->save($attendee);
+        $user1->reservations()->save($attendee);
 
         $user2 = factory(User::class)->create();
-        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee = new Reservation(['attending' => Reservation::USER_ATTENDING]);
         $attendee->meeting()->associate($meeting);
-        $user2->attends()->save($attendee);
+        $user2->reservations()->save($attendee);
 
         $response = $this->actingAs($organizer, 'api')->getJson(
-            route('api.meeting.attend.list', ['meeting' => $meeting->getKey()])
+            route('api.meeting.reservation.list', ['meeting' => $meeting->getKey()])
         );
 
         $response
@@ -64,13 +64,13 @@ class AttendTest extends TestCase
         $organizer->meetings()->save($meeting);
 
         $user = factory(User::class)->create();
-        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee = new Reservation(['attending' => Reservation::USER_ATTENDING]);
         $attendee->meeting()->associate($meeting);
-        $user->attends()->save($attendee);
+        $user->reservations()->save($attendee);
 
         $response = $this->actingAs($organizer, 'api')->getJson(
             route(
-                'api.meeting.attend.show',
+                'api.meeting.reservation.show',
                 ['meeting' => $meeting->getKey(), 'user' => $user->getKey()]
             )
         );
@@ -83,7 +83,7 @@ class AttendTest extends TestCase
                 'attendee' => [
                     'meeting_id' => $meeting->id,
                     'user_id' => $user->id,
-                    'attending' => Attend::USER_ATTENDING
+                    'attending' => Reservation::USER_ATTENDING
                 ]
             ]);
     }
@@ -93,13 +93,13 @@ class AttendTest extends TestCase
         $meeting = factory(Meeting::class)->create();
 
         $user = factory(User::class)->create();
-        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee = new Reservation(['attending' => Reservation::USER_ATTENDING]);
         $attendee->meeting()->associate($meeting);
-        $user->attends()->save($attendee);
+        $user->reservations()->save($attendee);
 
         $response = $this->actingAs($user, 'api')->putJson(
-            route('api.meeting.attend.update', ['meeting' => $meeting->getKey()]),
-            ['attending' => Attend::USER_MAYBE_ATTENDING]
+            route('api.meeting.reservation.update', ['meeting' => $meeting->getKey()]),
+            ['attending' => Reservation::USER_MAYBE_ATTENDING]
         );
 
         $response
@@ -114,12 +114,12 @@ class AttendTest extends TestCase
         $meeting = factory(Meeting::class)->create();
 
         $user = factory(User::class)->create();
-        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee = new Reservation(['attending' => Reservation::USER_ATTENDING]);
         $attendee->meeting()->associate($meeting);
-        $user->attends()->save($attendee);
+        $user->reservations()->save($attendee);
 
         $response = $this->actingAs($user, 'api')->putJson(
-            route('api.meeting.attend.update', ['meeting' => $meeting->getKey()]),
+            route('api.meeting.reservation.update', ['meeting' => $meeting->getKey()]),
             ['attending' => 'not sure']
         );
 
@@ -135,12 +135,12 @@ class AttendTest extends TestCase
         $meeting = factory(Meeting::class)->create();
 
         $user = factory(User::class)->create();
-        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee = new Reservation(['attending' => Reservation::USER_ATTENDING]);
         $attendee->meeting()->associate($meeting);
-        $user->attends()->save($attendee);
+        $user->reservations()->save($attendee);
 
         $response = $this->actingAs($user, 'api')->deleteJson(
-            route('api.meeting.attend.delete', ['meeting' => $meeting->getKey()])
+            route('api.meeting.reservation.delete', ['meeting' => $meeting->getKey()])
         );
 
         $response

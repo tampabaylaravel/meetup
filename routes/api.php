@@ -47,11 +47,11 @@ Route::group([
     Route::put('/{meeting}', 'MeetingController@update')->name('update');
     Route::delete('/{meeting}', 'MeetingController@destroy')->name('delete');
 
-    Route::get('/{meeting}/attend', 'AttendController@index')->name('attend.list');
-    Route::get('/{meeting}/attend/{user}', 'AttendController@show')->name('attend.show');
+    Route::get('/{meeting}/reservation', 'ReservationController@index')->name('reservation.list');
+    Route::get('/{meeting}/reservation/{user}', 'ReservationController@show')->name('reservation.show');
     // in the following methods:
-    //   the user is gotten from the request to ensure only the logged in user can affect their attendance
-    Route::post('/{meeting}/attend', 'AttendController@store')->name('attend.create');
-    Route::put('/{meeting}/attend', 'AttendController@update')->name('attend.update');
-    Route::delete('/{meeting}/attend', 'AttendController@destroy')->name('attend.delete');
+    //   the user is gotten from the request to ensure only the logged in user can affect their reservation
+    Route::post('/{meeting}/reservation', 'ReservationController@store')->name('reservation.create');
+    Route::put('/{meeting}/reservation', 'ReservationController@update')->name('reservation.update');
+    Route::delete('/{meeting}/reservation', 'ReservationController@destroy')->name('reservation.delete');
 });

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\UpdateAttendRequest;
-use App\Models\Attend;
+use App\Http\Requests\UpdateReservationRequest;
+use App\Models\Reservation;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class AttendController extends Controller
+class ReservationController extends Controller
 {
     /**
      * Get all meeting attendees
@@ -25,7 +25,7 @@ class AttendController extends Controller
      */
     public function index(Request $request, Meeting $meeting)
     {
-        $attendees = $meeting->attends()->search($request->input())->get();
+        $attendees = $meeting->reservations()->search($request->input())->get();
 
         return response()->json(
             [
@@ -48,7 +48,7 @@ class AttendController extends Controller
      */
     public function store(Request $request, Meeting $meeting)
     {
-        $attend = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attend = new Reservation(['attending' => Reservation::USER_ATTENDING]);
         $attend->meeting()->associate($meeting);
         $attend->user()->associate($request->user());
         $attend->save();
@@ -71,7 +71,7 @@ class AttendController extends Controller
      */
     public function show(Meeting $meeting, User $user)
     {
-        $attend = $user->attends()->where(['meeting_id' => $meeting->getKey()])->first();
+        $attend = $user->reservations()->where(['meeting_id' => $meeting->getKey()])->first();
 
         return response()->json(
             [
@@ -86,15 +86,15 @@ class AttendController extends Controller
      *
      * Gets user from request so only the logged in user can say they are attending
      *
-     * @param UpdateAttendRequest $request
+     * @param UpdateReservationRequest $request
      * @param Meeting $meeting
      *
      * @return JsonResponse
      */
-    public function update(UpdateAttendRequest $request, Meeting $meeting)
+    public function update(UpdateReservationRequest $request, Meeting $meeting)
     {
-        /* @var Attend $attend */
-        $attend = $request->user()->attends()->where(['meeting_id' => $meeting->getKey()])->first();
+        /* @var Reservation $attend */
+        $attend = $request->user()->reservations()->where(['meeting_id' => $meeting->getKey()])->first();
 
         if($attend === null) {
             return response()->json(
@@ -137,8 +137,8 @@ class AttendController extends Controller
      */
     public function destroy(Request $request, Meeting $meeting)
     {
-        /* @var Attend $attend */
-        $attend = $request->user()->attends()->where(['meeting_id' => $meeting->getKey()])->first();
+        /* @var Reservation $attend */
+        $attend = $request->user()->reservations()->where(['meeting_id' => $meeting->getKey()])->first();
 
         if($attend === null) {
             return response()->json(
@@ -150,7 +150,7 @@ class AttendController extends Controller
             );
         }
 
-        $attend->attending = Attend::USER_NOT_ATTENDING;
+        $attend->attending = Reservation::USER_NOT_ATTENDING;
 
         if($attend->save() == false) {
             return response()->json(

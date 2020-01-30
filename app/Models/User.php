@@ -63,8 +63,8 @@ class User extends Authenticatable
      * Get attendance records by user to meetings
      * @return HasMany
      */
-    public function attends()
+    public function reservations()
     {
-        return $this->hasMany(Attend::class);
+        return $this->hasMany(Reservation::class);
     }
 }
