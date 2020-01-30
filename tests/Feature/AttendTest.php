@@ -21,7 +21,7 @@ class AttendTest extends TestCase
         $user = factory(User::class)->create();
 
         $response = $this->actingAs($user, 'api')->postJson(
-            route('api.meetings.attend.create', ['meeting' => $meeting->getKey()])
+            route('api.meeting.attend.create', ['meeting' => $meeting->getKey()])
         );
 
         $response
@@ -46,7 +46,7 @@ class AttendTest extends TestCase
         $user2->attends()->save($attendee);
 
         $response = $this->actingAs($organizer, 'api')->getJson(
-            route('api.meetings.attend.list', ['meeting' => $meeting->getKey()])
+            route('api.meeting.attend.list', ['meeting' => $meeting->getKey()])
         );
 
         $response
@@ -70,7 +70,7 @@ class AttendTest extends TestCase
 
         $response = $this->actingAs($organizer, 'api')->getJson(
             route(
-                'api.meetings.attend.show',
+                'api.meeting.attend.show',
                 ['meeting' => $meeting->getKey(), 'user' => $user->getKey()]
             )
         );
@@ -98,7 +98,7 @@ class AttendTest extends TestCase
         $user->attends()->save($attendee);
 
         $response = $this->actingAs($user, 'api')->putJson(
-            route('api.meetings.attend.update', ['meeting' => $meeting->getKey()]),
+            route('api.meeting.attend.update', ['meeting' => $meeting->getKey()]),
             ['attending' => Attend::USER_MAYBE_ATTENDING]
         );
 
@@ -119,7 +119,7 @@ class AttendTest extends TestCase
         $user->attends()->save($attendee);
 
         $response = $this->actingAs($user, 'api')->putJson(
-            route('api.meetings.attend.update', ['meeting' => $meeting->getKey()]),
+            route('api.meeting.attend.update', ['meeting' => $meeting->getKey()]),
             ['attending' => 'not sure']
         );
 
@@ -140,7 +140,7 @@ class AttendTest extends TestCase
         $user->attends()->save($attendee);
 
         $response = $this->actingAs($user, 'api')->deleteJson(
-            route('api.meetings.attend.delete', ['meeting' => $meeting->getKey()])
+            route('api.meeting.attend.delete', ['meeting' => $meeting->getKey()])
         );
 
         $response

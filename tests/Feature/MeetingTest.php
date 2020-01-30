@@ -23,7 +23,7 @@ class MeetingTest extends TestCase
         );
 
         $response = $this->actingAs($organizer, 'api')->postJson(
-            route('api.meetings.create'),
+            route('api.meeting.create'),
             [
                 'name' => $this->faker->company,
                 'description' => $this->faker->paragraph,
@@ -49,7 +49,7 @@ class MeetingTest extends TestCase
         $organizer->meetings()->save($meeting);
 
         $response = $this->actingAs($user, 'api')->getJson(
-            route('api.meetings.list')
+            route('api.meeting.list')
         );
 
         $response
@@ -72,7 +72,7 @@ class MeetingTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->getJson(
             route(
-                'api.meetings.list',
+                'api.meeting.list',
                 [
                     'name' => $meeting1->name
                 ]
@@ -88,7 +88,7 @@ class MeetingTest extends TestCase
             ]);
 
         $response = $this->actingAs($user, 'api')->getJson(
-            route('api.meetings.list',
+            route('api.meeting.list',
             [
                 'name' => 'Fake Meeting'
             ])
@@ -112,7 +112,7 @@ class MeetingTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->getJson(
             route(
-                'api.meetings.list',
+                'api.meeting.list',
                 [
                     'name' => 'Wrong Meeting Name'
                 ]
@@ -135,7 +135,7 @@ class MeetingTest extends TestCase
         $organizer->meetings()->save($meeting);
 
         $response = $this->actingAs($organizer, 'api')->putJson(
-            route('api.meetings.update', ['meeting' => $meeting->getKey()]),
+            route('api.meeting.update', ['meeting' => $meeting->getKey()]),
             [
                 'name' => 'Fake Meeting'
             ]
@@ -157,7 +157,7 @@ class MeetingTest extends TestCase
         $organizer->meetings()->save($meeting);
 
         $response = $this->actingAs($user, 'api')->putJson(
-            route('api.meetings.update', ['meeting' => $meeting->getKey()]),
+            route('api.meeting.update', ['meeting' => $meeting->getKey()]),
             [
                 'name' => 'Fake Meeting'
             ]
@@ -178,7 +178,7 @@ class MeetingTest extends TestCase
         $organizer->meetings()->save($meeting);
 
         $response = $this->actingAs($organizer, 'api')->deleteJson(
-            route('api.meetings.delete', ['meeting' => $meeting->getKey()])
+            route('api.meeting.delete', ['meeting' => $meeting->getKey()])
         );
 
         $response
@@ -197,7 +197,7 @@ class MeetingTest extends TestCase
         $organizer->meetings()->save($meeting);
 
         $response = $this->actingAs($user, 'api')->deleteJson(
-            route('api.meetings.delete', ['meeting' => $meeting->getKey()])
+            route('api.meeting.delete', ['meeting' => $meeting->getKey()])
         );
 
         $response

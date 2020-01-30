@@ -35,18 +35,23 @@ Route::group([
     })->name('index');
 });
 
-Route::middleware('auth:api')->prefix('meeting')->namespace('Api')->group(function () {
-    Route::get('/', 'MeetingController@index')->name('api.meetings.list');
-    Route::post('/', 'MeetingController@store')->name('api.meetings.create');
-    Route::get('/{meeting}', 'MeetingController@show')->name('api.meetings.show');
-    Route::put('/{meeting}', 'MeetingController@update')->name('api.meetings.update');
-    Route::delete('/{meeting}', 'MeetingController@destroy')->name('api.meetings.delete');
+Route::group([
+    'prefix' => 'meeting',
+    'as' => 'api.meeting.',
+    'namespace' => 'Api',
+    'middleware' => ['auth:api']
+], function () {
+    Route::get('/', 'MeetingController@index')->name('list');
+    Route::post('/', 'MeetingController@store')->name('create');
+    Route::get('/{meeting}', 'MeetingController@show')->name('show');
+    Route::put('/{meeting}', 'MeetingController@update')->name('update');
+    Route::delete('/{meeting}', 'MeetingController@destroy')->name('delete');
 
-    Route::get('/{meeting}/attend', 'AttendController@index')->name('api.meetings.attend.list');
-    Route::get('/{meeting}/attend/{user}', 'AttendController@show')->name('api.meetings.attend.show');
+    Route::get('/{meeting}/attend', 'AttendController@index')->name('attend.list');
+    Route::get('/{meeting}/attend/{user}', 'AttendController@show')->name('attend.show');
     // in the following methods:
     //   the user is gotten from the request to ensure only the logged in user can affect their attendance
-    Route::post('/{meeting}/attend', 'AttendController@store')->name('api.meetings.attend.create');
-    Route::put('/{meeting}/attend', 'AttendController@update')->name('api.meetings.attend.update');
-    Route::delete('/{meeting}/attend', 'AttendController@destroy')->name('api.meetings.attend.delete');
+    Route::post('/{meeting}/attend', 'AttendController@store')->name('attend.create');
+    Route::put('/{meeting}/attend', 'AttendController@update')->name('attend.update');
+    Route::delete('/{meeting}/attend', 'AttendController@destroy')->name('attend.delete');
 });
