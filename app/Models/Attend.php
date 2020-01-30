@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
  * @property string $attending
  * @property User $user Meeting attendee
  * @property Meeting $meeting
+ * @method static Builder search(array $params = [])
  */
 class Attend extends Model
 {
@@ -71,7 +72,7 @@ class Attend extends Model
         return $this->belongsTo(Meeting::class);
     }
 
-    public function scopeSearch($builder, array $params = [])
+    public function scopeSearch(Builder $builder, array $params = [])
     {
         return $builder->when(
             isset($params['attending']), function (Builder $builder) use ($params) {

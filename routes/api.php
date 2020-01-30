@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,17 +36,17 @@ Route::group([
 });
 
 Route::middleware('auth:api')->prefix('meeting')->namespace('Api')->group(function () {
-    Route::get('/', 'MeetingController@index');
-    Route::post('/', 'MeetingController@store');
-    Route::get('/{meeting}', 'MeetingController@show');
-    Route::put('/{meeting}', 'MeetingController@update');
-    Route::delete('/{meeting}', 'MeetingController@destroy');
+    Route::get('/', 'MeetingController@index')->name('api.meetings.list');
+    Route::post('/', 'MeetingController@store')->name('api.meetings.create');
+    Route::get('/{meeting}', 'MeetingController@show')->name('api.meetings.show');
+    Route::put('/{meeting}', 'MeetingController@update')->name('api.meetings.update');
+    Route::delete('/{meeting}', 'MeetingController@destroy')->name('api.meetings.delete');
 
-    Route::get('/{meeting}/attend', 'AttendController@index');
-    Route::get('/{meeting}/attend/{user}', 'AttendController@show');
+    Route::get('/{meeting}/attend', 'AttendController@index')->name('api.meetings.attend.list');
+    Route::get('/{meeting}/attend/{user}', 'AttendController@show')->name('api.meetings.attend.show');
     // in the following methods:
     //   the user is gotten from the request to ensure only the logged in user can affect their attendance
-    Route::post('/{meeting}/attend', 'AttendController@store');
-    Route::put('/{meeting}/attend', 'AttendController@update');
-    Route::delete('/{meeting}/attend', 'AttendController@destroy');
+    Route::post('/{meeting}/attend', 'AttendController@store')->name('api.meetings.attend.create');
+    Route::put('/{meeting}/attend', 'AttendController@update')->name('api.meetings.attend.update');
+    Route::delete('/{meeting}/attend', 'AttendController@destroy')->name('api.meetings.attend.delete');
 });

@@ -20,13 +20,41 @@ class AttendTest extends TestCase
 
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->post(
-            "/api/meeting/{$meeting->id}/attend"
+        $response = $this->actingAs($user, 'api')->postJson(
+            route('api.meetings.attend.create', ['meeting' => $meeting->getKey()])
         );
 
         $response
             ->assertStatus(200)
             ->assertJson(['success' => true]);
+    }
+
+    public function test_index()
+    {
+        $organizer = factory(User::class)->create();
+        $meeting = factory(Meeting::class)->make();
+        $organizer->meetings()->save($meeting);
+
+        $user1 = factory(User::class)->create();
+        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee->meeting()->associate($meeting);
+        $user1->attends()->save($attendee);
+
+        $user2 = factory(User::class)->create();
+        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee->meeting()->associate($meeting);
+        $user2->attends()->save($attendee);
+
+        $response = $this->actingAs($organizer, 'api')->getJson(
+            route('api.meetings.attend.list', ['meeting' => $meeting->getKey()])
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'rowCount' => 2
+            ]);
     }
 
     public function test_show()
@@ -40,8 +68,11 @@ class AttendTest extends TestCase
         $attendee->meeting()->associate($meeting);
         $user->attends()->save($attendee);
 
-        $response = $this->actingAs($organizer, 'api')->get(
-            "/api/meeting/{$meeting->id}/attend/{$user->id}"
+        $response = $this->actingAs($organizer, 'api')->getJson(
+            route(
+                'api.meetings.attend.show',
+                ['meeting' => $meeting->getKey(), 'user' => $user->getKey()]
+            )
         );
 
         $response
@@ -66,8 +97,8 @@ class AttendTest extends TestCase
         $attendee->meeting()->associate($meeting);
         $user->attends()->save($attendee);
 
-        $response = $this->actingAs($user, 'api')->put(
-            "/api/meeting/{$meeting->id}/attend",
+        $response = $this->actingAs($user, 'api')->putJson(
+            route('api.meetings.attend.update', ['meeting' => $meeting->getKey()]),
             ['attending' => Attend::USER_MAYBE_ATTENDING]
         );
 
@@ -76,6 +107,27 @@ class AttendTest extends TestCase
             ->assertJson([
                 'success' => true
             ]);
+    }
+
+    public function test_update_invalidValue()
+    {
+        $meeting = factory(Meeting::class)->create();
+
+        $user = factory(User::class)->create();
+        $attendee = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attendee->meeting()->associate($meeting);
+        $user->attends()->save($attendee);
+
+        $response = $this->actingAs($user, 'api')->putJson(
+            route('api.meetings.attend.update', ['meeting' => $meeting->getKey()]),
+            ['attending' => 'not sure']
+        );
+
+        $response
+            ->assertStatus(422)
+            /*->assertJson([
+                'success' => true
+            ])*/;
     }
 
     public function test_delete()
@@ -87,8 +139,8 @@ class AttendTest extends TestCase
         $attendee->meeting()->associate($meeting);
         $user->attends()->save($attendee);
 
-        $response = $this->actingAs($user, 'api')->delete(
-            "/api/meeting/{$meeting->id}/attend"
+        $response = $this->actingAs($user, 'api')->deleteJson(
+            route('api.meetings.attend.delete', ['meeting' => $meeting->getKey()])
         );
 
         $response

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations;
  * @property Carbon $end_time
  * @property User $user Meeting organizer/owner
  * @property Collection $attends Collection of meeting attendance records (links to users)
+ * @method static Builder search(array $params = [])
  */
 class Meeting extends Model
 {
@@ -61,5 +63,16 @@ class Meeting extends Model
     public function attends()
     {
         return $this->hasMany(Attend::class);
+    }
+
+    public function scopeSearch(Builder $builder, array $params = [])
+    {
+        collect($params)->each(function ($param, $field) use ($builder) {
+            if($field == 'name' && is_string($param)) {
+                $builder->where('name', 'LIKE', "%{$param}%");
+            } else {
+                $builder->whereIn($field, collect($param));
+            }
+        });
     }
 }

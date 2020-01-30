@@ -4,32 +4,32 @@ namespace Tests\Feature;
 
 use App\Models\Meeting;
 use App\Models\User;
-use Faker\Factory as FactorFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class MeetingTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithFaker;
 
-    /**
-     * Test meeting API endpoints
-     *
-     * @return void
-     */
     public function test_create()
     {
-        $faker = FactorFactory::create();
         $organizer = factory(User::class)->create();
 
-        $response = $this->actingAs($organizer, 'api')->post(
-            '/api/meeting',
+        $startTime = $this->faker->dateTimeBetween('now', '+2 years');
+        $endTime = $this->faker->dateTimeBetween(
+            $startTime->format('Y-m-d H:i:s').' +1 hours',
+            $startTime->format('Y-m-d H:i:s').' +6 hours'
+        );
+
+        $response = $this->actingAs($organizer, 'api')->postJson(
+            route('api.meetings.create'),
             [
-                'name' => $faker->company,
-                'description' => $faker->paragraph,
-                'location' => $faker->address,
-                'start_time' => $faker->dateTime,
-                'end_time' => $faker->dateTime
+                'name' => $this->faker->company,
+                'description' => $this->faker->paragraph,
+                'location' => $this->faker->address,
+                'start_time' => $startTime->format('Y-m-d H:i:s'),
+                'end_time' => $endTime->format('Y-m-d H:i:s')
             ]
         );
 
@@ -40,6 +40,93 @@ class MeetingTest extends TestCase
             ]);
     }
 
+    public function test_index()
+    {
+        $organizer = factory(User::class)->create();
+        $user = factory(User::class)->create();
+
+        $meeting = factory(Meeting::class)->make();
+        $organizer->meetings()->save($meeting);
+
+        $response = $this->actingAs($user, 'api')->getJson(
+            route('api.meetings.list')
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'rowCount' => 1
+            ]);
+    }
+
+    public function test_search_found()
+    {
+        $organizer = factory(User::class)->create();
+        $user = factory(User::class)->create();
+
+        $meeting1 = factory(Meeting::class)->make();
+        $organizer->meetings()->save($meeting1);
+        $meeting2 = factory(Meeting::class)->make(['name' => 'My Fake Meetings']);
+        $organizer->meetings()->save($meeting2);
+
+        $response = $this->actingAs($user, 'api')->getJson(
+            route(
+                'api.meetings.list',
+                [
+                    'name' => $meeting1->name
+                ]
+            )
+        );
+
+        // search for partial name
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'rowCount' => 1
+            ]);
+
+        $response = $this->actingAs($user, 'api')->getJson(
+            route('api.meetings.list',
+            [
+                'name' => 'Fake Meeting'
+            ])
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'rowCount' => 1
+            ]);
+    }
+
+    public function test_search_notFound()
+    {
+        $organizer = factory(User::class)->create();
+        $user = factory(User::class)->create();
+
+        $meeting = factory(Meeting::class)->make();
+        $organizer->meetings()->save($meeting);
+
+        $response = $this->actingAs($user, 'api')->getJson(
+            route(
+                'api.meetings.list',
+                [
+                    'name' => 'Wrong Meeting Name'
+                ]
+            )
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'rowCount' => 0
+            ]);
+    }
+
     public function test_update()
     {
         $organizer = factory(User::class)->create();
@@ -47,8 +134,8 @@ class MeetingTest extends TestCase
         $meeting = factory(Meeting::class)->make();
         $organizer->meetings()->save($meeting);
 
-        $response = $this->actingAs($organizer, 'api')->put(
-            "/api/meeting/{$meeting->id}",
+        $response = $this->actingAs($organizer, 'api')->putJson(
+            route('api.meetings.update', ['meeting' => $meeting->getKey()]),
             [
                 'name' => 'Fake Meeting'
             ]
@@ -69,18 +156,18 @@ class MeetingTest extends TestCase
         $meeting = factory(Meeting::class)->make();
         $organizer->meetings()->save($meeting);
 
-        $response = $this->actingAs($user, 'api')->put(
-            "/api/meeting/{$meeting->id}",
+        $response = $this->actingAs($user, 'api')->putJson(
+            route('api.meetings.update', ['meeting' => $meeting->getKey()]),
             [
                 'name' => 'Fake Meeting'
             ]
         );
 
         $response
-            ->assertStatus(401)
-            ->assertJson([
+            ->assertStatus(403)
+            /*->assertJson([
                 'success' => false
-            ]);
+            ])*/;
     }
 
     public function test_delete()
@@ -90,8 +177,8 @@ class MeetingTest extends TestCase
         $meeting = factory(Meeting::class)->make();
         $organizer->meetings()->save($meeting);
 
-        $response = $this->actingAs($organizer, 'api')->delete(
-            "/api/meeting/{$meeting->id}"
+        $response = $this->actingAs($organizer, 'api')->deleteJson(
+            route('api.meetings.delete', ['meeting' => $meeting->getKey()])
         );
 
         $response
@@ -109,14 +196,14 @@ class MeetingTest extends TestCase
         $meeting = factory(Meeting::class)->make();
         $organizer->meetings()->save($meeting);
 
-        $response = $this->actingAs($user, 'api')->delete(
-            "/api/meeting/{$meeting->id}"
+        $response = $this->actingAs($user, 'api')->deleteJson(
+            route('api.meetings.delete', ['meeting' => $meeting->getKey()])
         );
 
         $response
-            ->assertStatus(401)
-            ->assertJson([
+            ->assertStatus(403)
+            /*->assertJson([
                 'success' => false
-            ]);
+            ])*/;
     }
 }

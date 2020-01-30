@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Handlers\MeetingHandler;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreMeetingRequest;
+use App\Http\Requests\UpdateMeetingRequest;
 use App\Models\Meeting;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class MeetingController extends Controller
 {
@@ -15,11 +16,11 @@ class MeetingController extends Controller
      *
      * @param Request $request
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function index(Request $request)
     {
-        $meetings = MeetingHandler::search($request->input());
+        $meetings = Meeting::search($request->input());
 
         return response()->json(
             [
@@ -33,32 +34,18 @@ class MeetingController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param StoreMeetingRequest $request
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(StoreMeetingRequest $request)
     {
-        $validator = MeetingHandler::validatorForCreate($request->input());
-
-        if($validator->invalid()) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Invalid meeting parameters',
-                    'errors'  => $validator->messages()
-                ],
-                422
-            );
-        }
-
-        //$meeting = $request->user()->meetings()->create($request->input());
-        $meeting = MeetingHandler::create($request->user(), $request->input());
+        $meeting = $request->user()->meetings()->create($request->validated());
 
         return response()->json(
             [
                 'success' => ($meeting !== null),
-                'message' => MeetingHandler::getMessage('Successfully created the meeting'),
+                'message' => 'Successfully created the meeting',
                 'meeting' => $meeting
             ],
             201
@@ -70,7 +57,7 @@ class MeetingController extends Controller
      *
      * @param  Meeting $meeting
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function show(Meeting $meeting)
     {
@@ -85,42 +72,21 @@ class MeetingController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request  $request
+     * @param  UpdateMeetingRequest  $request
      * @param  Meeting $meeting
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function update(Request $request, Meeting $meeting)
+    public function update(UpdateMeetingRequest $request, Meeting $meeting)
     {
-        if($request->user()->isNot($meeting->user)) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Only the meeting organizer is allowed to edit a meeting'
-                ],
-                401
-            );
+        foreach($request->validated() as $field => $value) {
+            $meeting->{$field} = $value;
         }
-
-        $validator = MeetingHandler::validatorForUpdate($request->input());
-
-        if($validator->invalid()) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Invalid meeting parameters',
-                    'errors'  => $validator->messages()
-                ],
-                422
-            );
-        }
-
-        $r = MeetingHandler::update($meeting, $request->input());
 
         return response()->json(
             [
-                'success' => ($r == true),
-                'message' => MeetingHandler::getMessage('Successfully updated meeting')
+                'success' => true,
+                'message' => 'Successfully updated meeting'
             ]
         );
     }
@@ -128,29 +94,27 @@ class MeetingController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Request  $request
-     * @param  Meeting $meeting
+     * @param UpdateMeetingRequest $request
+     * @param Meeting $meeting
      *
-     * @return Response
+     * @return JsonResponse
+     * @throws \Exception
      */
-    public function destroy(Request $request, Meeting $meeting)
+    public function destroy(UpdateMeetingRequest $request, Meeting $meeting)
     {
-        if($request->user()->isNot($meeting->user)) {
+        if($meeting->delete() == false) {
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Only the meeting organizer is allowed to delete a meeting'
-                ],
-                401
+                    'message' => 'Error deleted meeting'
+                ]
             );
         }
 
-        $r = MeetingHandler::delete($meeting);
-
         return response()->json(
             [
-                'success' => ($r == true),
-                'message' => MeetingHandler::getMessage('Successfully deleted meeting')
+                'success' => true,
+                'message' => 'Successfully deleted meeting'
             ]
         );
     }

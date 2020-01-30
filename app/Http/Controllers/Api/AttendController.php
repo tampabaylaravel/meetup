@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Handlers\AttendHandler;
+use App\Http\Requests\UpdateAttendRequest;
 use App\Models\Attend;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class AttendController extends Controller
 {
@@ -21,11 +21,11 @@ class AttendController extends Controller
      *      user attributes through dot notation i.e. user.name
      * @param Meeting $meeting
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function index(Request $request, Meeting $meeting)
     {
-        $attendees = AttendHandler::search($meeting, $request->input());
+        $attendees = $meeting->attends()->search($request->input())->get();
 
         return response()->json(
             [
@@ -44,11 +44,14 @@ class AttendController extends Controller
      * @param Request $request
      * @param Meeting $meeting
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function store(Request $request, Meeting $meeting)
     {
-        AttendHandler::create($request->user(), $meeting);
+        $attend = new Attend(['attending' => Attend::USER_ATTENDING]);
+        $attend->meeting()->associate($meeting);
+        $attend->user()->associate($request->user());
+        $attend->save();
 
         return response()->json(
             [
@@ -64,11 +67,11 @@ class AttendController extends Controller
      * @param Meeting $meeting
      * @param User $user
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function show(Meeting $meeting, User $user)
     {
-        $attend = AttendHandler::get($user, $meeting);
+        $attend = $user->attends()->where(['meeting_id' => $meeting->getKey()])->first();
 
         return response()->json(
             [
@@ -83,14 +86,15 @@ class AttendController extends Controller
      *
      * Gets user from request so only the logged in user can say they are attending
      *
-     * @param Request $request
+     * @param UpdateAttendRequest $request
      * @param Meeting $meeting
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function update(Request $request, Meeting $meeting)
+    public function update(UpdateAttendRequest $request, Meeting $meeting)
     {
-        $attend = AttendHandler::get($request->user(), $meeting);
+        /* @var Attend $attend */
+        $attend = $request->user()->attends()->where(['meeting_id' => $meeting->getKey()])->first();
 
         if($attend === null) {
             return response()->json(
@@ -102,12 +106,21 @@ class AttendController extends Controller
             );
         }
 
-        $r = AttendHandler::update($attend, $request->input());
+        $attend->attending = $request->input('attending');
+
+        if($attend->save() == false) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Error setting attending status'
+                ]
+            );
+        }
 
         return response()->json(
             [
-                'success' => ($r == true),
-                'message' => AttendHandler::getMessage('Successfully updated attending status')
+                'success' => true,
+                'message' => 'Successfully updated attending status'
             ]
         );
     }
@@ -120,11 +133,12 @@ class AttendController extends Controller
      * @param Request $request
      * @param Meeting $meeting
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function destroy(Request $request, Meeting $meeting)
     {
-        $attend = AttendHandler::get($request->user(), $meeting);
+        /* @var Attend $attend */
+        $attend = $request->user()->attends()->where(['meeting_id' => $meeting->getKey()])->first();
 
         if($attend === null) {
             return response()->json(
@@ -136,12 +150,21 @@ class AttendController extends Controller
             );
         }
 
-        $r = AttendHandler::update($attend, ['attending' => Attend::USER_NOT_ATTENDING]);
+        $attend->attending = Attend::USER_NOT_ATTENDING;
+
+        if($attend->save() == false) {
+            return response()->json(
+                [
+                    'success' => false,
+                    'message' => 'Error setting attending status'
+                ]
+            );
+        }
 
         return response()->json(
             [
-                'success' => ($r == true),
-                'message' => AttendHandler::getMessage('Successfully updated attending status')
+                'success' => true,
+                'message' => 'Successfully updated attending status'
             ]
         );
     }
