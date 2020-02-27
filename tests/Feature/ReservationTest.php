@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Reservation;
 use App\Models\Meeting;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,6 +28,12 @@ class ReservationTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson(['success' => true]);
+
+        $attend = $user->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+            $query->where($meeting->getKeyName(), $meeting->getKey());
+        })->first();
+
+        $this->assertNotNull($attend);
     }
 
     public function test_index()
@@ -54,6 +61,15 @@ class ReservationTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'rowCount' => 2
+            ])
+            ->assertJsonFragment([
+                'attending' => Reservation::USER_ATTENDING
+            ])
+            ->assertJsonFragment([
+                'user_id' => $user1->getKey()
+            ])
+            ->assertJsonFragment([
+                'user_id' => $user2->getKey()
             ]);
     }
 
@@ -77,7 +93,6 @@ class ReservationTest extends TestCase
 
         $response
             ->assertStatus(200)
-            //->assertJsonStructure(['success', 'attendee'])
             ->assertJson([
                 'success' => true,
                 'attendee' => [
@@ -107,9 +122,15 @@ class ReservationTest extends TestCase
             ->assertJson([
                 'success' => true
             ]);
+
+        $attend = $user->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+            $query->where($meeting->getKeyName(), $meeting->getKey());
+        })->first();
+
+        $this->assertEquals(Reservation::USER_MAYBE_ATTENDING, $attend->attending);
     }
 
-    public function test_update_invalidValue()
+    public function test_update_invalid_value()
     {
         $meeting = factory(Meeting::class)->create();
 
@@ -124,10 +145,7 @@ class ReservationTest extends TestCase
         );
 
         $response
-            ->assertStatus(422)
-            /*->assertJson([
-                'success' => true
-            ])*/;
+            ->assertStatus(422);
     }
 
     public function test_delete()
@@ -148,5 +166,11 @@ class ReservationTest extends TestCase
             ->assertJson([
                 'success' => true
             ]);
+
+        $attend = $user->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+            $query->where($meeting->getKeyName(), $meeting->getKey());
+        })->first();
+
+        $this->assertEquals(Reservation::USER_NOT_ATTENDING, $attend->attending);
     }
 }

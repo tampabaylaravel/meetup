@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -71,7 +72,9 @@ class ReservationController extends Controller
      */
     public function show(Meeting $meeting, User $user)
     {
-        $attend = $user->reservations()->where(['meeting_id' => $meeting->getKey()])->first();
+        $attend = $user->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+            $query->where($meeting->getKeyName(), $meeting->getKey());
+        })->first();
 
         return response()->json(
             [
@@ -94,7 +97,9 @@ class ReservationController extends Controller
     public function update(UpdateReservationRequest $request, Meeting $meeting)
     {
         /* @var Reservation $attend */
-        $attend = $request->user()->reservations()->where(['meeting_id' => $meeting->getKey()])->first();
+        $attend = $request->user()->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+            $query->where($meeting->getKeyName(), $meeting->getKey());
+        })->first();
 
         if($attend === null) {
             return response()->json(
@@ -113,7 +118,8 @@ class ReservationController extends Controller
                 [
                     'success' => false,
                     'message' => 'Error setting attending status'
-                ]
+                ],
+                403
             );
         }
 
@@ -138,7 +144,9 @@ class ReservationController extends Controller
     public function destroy(Request $request, Meeting $meeting)
     {
         /* @var Reservation $attend */
-        $attend = $request->user()->reservations()->where(['meeting_id' => $meeting->getKey()])->first();
+        $attend = $request->user()->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+            $query->where($meeting->getKeyName(), $meeting->getKey());
+        })->first();
 
         if($attend === null) {
             return response()->json(
@@ -157,7 +165,8 @@ class ReservationController extends Controller
                 [
                     'success' => false,
                     'message' => 'Error setting attending status'
-                ]
+                ],
+                403
             );
         }
 

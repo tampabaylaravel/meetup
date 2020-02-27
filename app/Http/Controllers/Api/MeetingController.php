@@ -20,7 +20,7 @@ class MeetingController extends Controller
      */
     public function index(Request $request)
     {
-        $meetings = Meeting::search($request->input());
+        $meetings = Meeting::search($request->input())->get();
 
         return response()->json(
             [
@@ -79,9 +79,7 @@ class MeetingController extends Controller
      */
     public function update(UpdateMeetingRequest $request, Meeting $meeting)
     {
-        foreach($request->validated() as $field => $value) {
-            $meeting->{$field} = $value;
-        }
+        $meeting->update($request->validated());
 
         return response()->json(
             [
@@ -102,14 +100,7 @@ class MeetingController extends Controller
      */
     public function destroy(UpdateMeetingRequest $request, Meeting $meeting)
     {
-        if($meeting->delete() == false) {
-            return response()->json(
-                [
-                    'success' => false,
-                    'message' => 'Error deleted meeting'
-                ]
-            );
-        }
+        $meeting->delete();
 
         return response()->json(
             [

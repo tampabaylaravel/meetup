@@ -13,7 +13,7 @@ class StoreMeetingRequest extends FormRequest
      */
     public function authorize()
     {
-        // should anyone be able to create a meeting or only users with specific roles?
+        // @todo When user roles are implemented, only allow organizers to create meetings
         return true;
     }
 
