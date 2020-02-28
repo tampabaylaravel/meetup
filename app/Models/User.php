@@ -5,8 +5,20 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+/**
+ * Class User
+ *
+ * @package App\Models
+ * @version 1.0
+ *
+ * @property Meeting $meeting Meetings organized/owned by user
+ * @property Collection $appends Collection of meeting attendance states (links to meeting)
+ */
 class User extends Authenticatable
 {
     use Notifiable, SoftDeletes;
@@ -38,15 +50,21 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * Get meetings owned by user
+     * @return HasMany
+     */
     public function meetings()
     {
         return $this->hasMany(Meeting::class);
     }
 
-    public function attending()
+    /**
+     * Get attendance records by user to meetings
+     * @return HasMany
+     */
+    public function reservations()
     {
-        return $this->belongsToMany(Meeting::class)
-                    ->withPivot(['attending'])
-                    ->withTimestamps();
+        return $this->hasMany(Reservation::class);
     }
 }

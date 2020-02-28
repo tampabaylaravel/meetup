@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,4 +33,25 @@ Route::group([
     Route::get('/', function (Request $request) {
         return $request->user();
     })->name('index');
+});
+
+Route::group([
+    'prefix' => 'meeting',
+    'as' => 'api.meeting.',
+    'namespace' => 'Api',
+    'middleware' => ['auth:api']
+], function () {
+    Route::get('/', 'MeetingController@index')->name('list');
+    Route::post('/', 'MeetingController@store')->name('create');
+    Route::get('/{meeting}', 'MeetingController@show')->name('show');
+    Route::put('/{meeting}', 'MeetingController@update')->name('update');
+    Route::delete('/{meeting}', 'MeetingController@destroy')->name('delete');
+
+    Route::get('/{meeting}/reservation', 'ReservationController@index')->name('reservation.list');
+    Route::get('/{meeting}/reservation/{user}', 'ReservationController@show')->name('reservation.show');
+    // in the following methods:
+    //   the user is gotten from the request to ensure only the logged in user can affect their reservation
+    Route::post('/{meeting}/reservation', 'ReservationController@store')->name('reservation.create');
+    Route::put('/{meeting}/reservation', 'ReservationController@update')->name('reservation.update');
+    Route::delete('/{meeting}/reservation', 'ReservationController@destroy')->name('reservation.delete');
 });

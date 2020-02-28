@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Meeting;
+use App\Policies\MeetingPolicy;
 use Exception;
 use App\Models\User;
 use App\Traits\InteractsWithJWT;
@@ -20,7 +22,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        // 'App\Model' => 'App\Policies\ModelPolicy',
+        Meeting::class => MeetingPolicy::class
     ];
 
     /**

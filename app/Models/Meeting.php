@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations;
 
 /**
  * Class Meeting
@@ -12,19 +15,19 @@ use Illuminate\Database\Eloquent\Model;
  * @package App\Models
  * @version 1.0
  *
+ * @property int $id
  * @property int $user_id
  * @property string $name
  * @property string $description
  * @property string $location
  * @property Carbon $start_time
  * @property Carbon $end_time
+ * @property User $user Meeting organizer/owner
+ * @property Collection $attends Collection of meeting attendance records (links to users)
+ * @method static Builder search(array $params = [])
  */
 class Meeting extends Model
 {
-    const USER_ATTENDING = 'yes';
-    const USER_NOT_ATTENDING = 'no';
-    const USER_MAYBE_ATTENDING = 'maybe';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -44,15 +47,32 @@ class Meeting extends Model
         'end_time'   => 'datetime'
     ];
 
+    /**
+     * Get meeting User (owner/organizer)
+     * @return Relations\BelongsTo User
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function attendees()
+    /**
+     * Get meeting Users (attendees)
+     * @return Relations\HasMany
+     */
+    public function reservations()
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot(['attending'])
-            ->withTimestamps();
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function scopeSearch(Builder $builder, array $params = [])
+    {
+        collect($params)->each(function ($param, $field) use ($builder) {
+            if($field == 'name' && is_string($param)) {
+                $builder->where('name', 'LIKE', "%{$param}%");
+            } else {
+                $builder->whereIn($field, collect($param));
+            }
+        });
     }
 }
