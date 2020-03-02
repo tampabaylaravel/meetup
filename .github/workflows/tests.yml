@@ -1,0 +1,36 @@
+name: Tests
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Run composer install
+        run: composer install -n --no-ansi --no-interaction --no-scripts --no-suggest --no-progress
+      - name: Setup Database
+        run: mysql --port 3306 -u root -proot -e 'CREATE DATABASE IF NOT EXISTS laravel;'
+      - name: Prepare Laravel
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+      - name: Run tests
+        env:
+          TEST_DB_HOST: 127.0.0.1
+          TEST_DB_PORT: 3306
+          TEST_DB_DATABASE: laravel
+          TEST_DB_USERNAME: root
+          TEST_DB_PASSWORD: root
+          JWT_ISSUER: ghactions
+          JWT_SECRET: abcdefg
+          JWT_EXPIRES_IN_MINUTES: 60
+        run: ./vendor/bin/phpunit
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        if: failure()
+        with:
+          name: Logs
+          path: ./storage/logs
+
