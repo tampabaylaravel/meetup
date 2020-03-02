@@ -18,7 +18,7 @@ trait InteractsWithJWT
             'iss' => config('auth.jwt.issuer'),
             'sub' => $user->getKey(),
             'iat' => time(),
-            'exp' => time() + (60 * config('auth.jwt.expires_in_minutes'))
+            'exp' => time() + (60 * config('auth.jwt.expires_in_minutes')),
         ], $override), config('auth.jwt.secret'));
     }
 

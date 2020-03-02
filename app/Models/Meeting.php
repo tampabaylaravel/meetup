@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Class Meeting
@@ -34,7 +34,7 @@ class Meeting extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'name', 'description', 'location', 'start_time', 'end_time'
+        'user_id', 'name', 'description', 'location', 'start_time', 'end_time',
     ];
 
     /**
@@ -44,7 +44,7 @@ class Meeting extends Model
      */
     protected $casts = [
         'start_time' => 'datetime',
-        'end_time'   => 'datetime'
+        'end_time' => 'datetime',
     ];
 
     /**
@@ -68,7 +68,7 @@ class Meeting extends Model
     public function scopeSearch(Builder $builder, array $params = [])
     {
         collect($params)->each(function ($param, $field) use ($builder) {
-            if($field == 'name' && is_string($param)) {
+            if ($field == 'name' && is_string($param)) {
                 $builder->where('name', 'LIKE', "%{$param}%");
             } else {
                 $builder->whereIn($field, collect($param));

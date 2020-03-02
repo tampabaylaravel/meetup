@@ -67,7 +67,7 @@ class ResetPasswordTest extends TestCase
     public function a_user_cannot_request_password_reset_with_a_non_existing_email()
     {
         $response = $this->postJson(route('auth.forgot'), $this->validParamaters([
-            'email' => 'non@existing.com'
+            'email' => 'non@existing.com',
         ]));
 
         $this->assertEquals(

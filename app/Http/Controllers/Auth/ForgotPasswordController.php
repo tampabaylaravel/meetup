@@ -13,17 +13,6 @@ class ForgotPasswordController extends Controller
     use SendsPasswordResetEmails;
 
     /**
-     * Send a reset link to the given user.
-     *
-     * @param Request $request
-     * @return JsonResponse|RedirectResponse
-     */
-    public function __invoke(Request $request)
-    {
-        return $this->sendResetLinkEmail($request);
-    }
-
-    /**
      * Get the response for a successful password reset link.
      *
      * @param Request $request
@@ -34,7 +23,7 @@ class ForgotPasswordController extends Controller
     {
         return response()->json([
             'message' => 'Password reset email sent.',
-            'data' => $response
+            'data' => $response,
         ]);
     }
 
@@ -50,5 +39,16 @@ class ForgotPasswordController extends Controller
         return response()->json([
             'message' => 'Email could not be sent to this email address.',
         ], 422);
+    }
+
+    /**
+     * Send a reset link to the given user.
+     *
+     * @param Request $request
+     * @return JsonResponse|RedirectResponse
+     */
+    public function __invoke(Request $request)
+    {
+        return $this->sendResetLinkEmail($request);
     }
 }

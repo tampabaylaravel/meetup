@@ -13,7 +13,8 @@ use Illuminate\Foundation\Auth\ThrottlesLogins;
 
 class LoginController extends Controller
 {
-    use InteractsWithJWT, ThrottlesLogins;
+    use InteractsWithJWT;
+    use ThrottlesLogins;
 
     /**
      * The maximum number of attempts to allow.
@@ -46,7 +47,7 @@ class LoginController extends Controller
 
         $user = User::where('email', $request->input('email'))->first();
 
-        if (! $user || ! $this->verifyPasswordFor($user, $request->input('password'))) {
+        if (!$user || !$this->verifyPasswordFor($user, $request->input('password'))) {
             $this->incrementLoginAttempts($request);
 
             abort(400, 'Email or password is wrong.');

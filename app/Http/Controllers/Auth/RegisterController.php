@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-
 use App\Models\User;
 use Illuminate\Http\Response;
 use App\Traits\InteractsWithJWT;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\RegisterRequest;
-use Illuminate\Foundation\Auth\RegistersUsers;
 
 class RegisterController extends Controller
 {

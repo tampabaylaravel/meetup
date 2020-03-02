@@ -4,14 +4,14 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
-use Firebase\JWT\JWT;
 use Illuminate\Support\Arr;
 use App\Traits\InteractsWithJWT;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class RegisterTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithJWT;
+    use RefreshDatabase;
+    use InteractsWithJWT;
 
     /**
      * @var string

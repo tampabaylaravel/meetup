@@ -2,24 +2,28 @@
 
 namespace Tests\Feature;
 
-use App\Models\Meeting;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\User;
+use App\Models\Meeting;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class MeetingTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
 
-    public function test_create()
+    /**
+     * @test
+     */
+    public function create()
     {
         $organizer = factory(User::class)->create();
 
         $startTime = $this->faker->dateTimeBetween('now', '+2 years');
         $endTime = $this->faker->dateTimeBetween(
-            $startTime->format('Y-m-d H:i:s').' +1 hours',
-            $startTime->format('Y-m-d H:i:s').' +6 hours'
+            $startTime->format('Y-m-d H:i:s') . ' +1 hours',
+            $startTime->format('Y-m-d H:i:s') . ' +6 hours'
         );
 
         $meetingName = 'Secret Pirate Meeting';
@@ -31,7 +35,7 @@ class MeetingTest extends TestCase
                 'description' => 'Brainstorm about better pilfering methods and hiding places.',
                 'location' => 'Third Secret Island',
                 'start_time' => $startTime->format('Y-m-d H:i:s'),
-                'end_time' => $endTime->format('Y-m-d H:i:s')
+                'end_time' => $endTime->format('Y-m-d H:i:s'),
             ]
         );
 
@@ -40,8 +44,8 @@ class MeetingTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'meeting' => [
-                    'name' => $meetingName
-                ]
+                    'name' => $meetingName,
+                ],
             ]);
 
         $meeting = Meeting::first();
@@ -49,7 +53,10 @@ class MeetingTest extends TestCase
         $this->assertEquals($meetingName, $meeting->name);
     }
 
-    public function test_index()
+    /**
+     * @test
+     */
+    public function index()
     {
         $organizer = factory(User::class)->create();
         $user = factory(User::class)->create();
@@ -68,14 +75,17 @@ class MeetingTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'rowCount' => 2
+                'rowCount' => 2,
             ])
             ->assertJsonFragment([
-                'name' => $meeting1->name
+                'name' => $meeting1->name,
             ]);
     }
 
-    public function test_search_found_full_name()
+    /**
+     * @test
+     */
+    public function search_found_full_name()
     {
         $organizer = factory(User::class)->create();
         $user = factory(User::class)->create();
@@ -89,7 +99,7 @@ class MeetingTest extends TestCase
             route(
                 'api.meeting.list',
                 [
-                    'name' => $meeting1->name
+                    'name' => $meeting1->name,
                 ]
             )
         );
@@ -98,14 +108,17 @@ class MeetingTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'rowCount' => 1
+                'rowCount' => 1,
             ])
             ->assertJsonFragment([
-                'name' => $meeting1->name
+                'name' => $meeting1->name,
             ]);
     }
 
-    public function test_search_found_partial_name()
+    /**
+     * @test
+     */
+    public function search_found_partial_name()
     {
         $organizer = factory(User::class)->create();
         $user = factory(User::class)->create();
@@ -116,24 +129,29 @@ class MeetingTest extends TestCase
         $organizer->meetings()->save($meeting2);
 
         $response = $this->actingAs($user, 'api')->getJson(
-            route('api.meeting.list',
-            [
-                'name' => 'Fake Meeting'
-            ])
+            route(
+                'api.meeting.list',
+                [
+                    'name' => 'Fake Meeting',
+                ]
+            )
         );
 
         $response
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'rowCount' => 1
+                'rowCount' => 1,
             ])
             ->assertJsonFragment([
-                'name' => $meeting2->name
+                'name' => $meeting2->name,
             ]);
     }
 
-    public function test_search_not_found()
+    /**
+     * @test
+     */
+    public function search_not_found()
     {
         $organizer = factory(User::class)->create();
         $user = factory(User::class)->create();
@@ -145,7 +163,7 @@ class MeetingTest extends TestCase
             route(
                 'api.meeting.list',
                 [
-                    'name' => 'Wrong Meeting Name'
+                    'name' => 'Wrong Meeting Name',
                 ]
             )
         );
@@ -154,11 +172,14 @@ class MeetingTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'rowCount' => 0
+                'rowCount' => 0,
             ]);
     }
 
-    public function test_update()
+    /**
+     * @test
+     */
+    public function update()
     {
         $organizer = factory(User::class)->create();
 
@@ -170,14 +191,14 @@ class MeetingTest extends TestCase
         $response = $this->actingAs($organizer, 'api')->putJson(
             route('api.meeting.update', ['meeting' => $meeting->getKey()]),
             [
-                'name' => $meetingName
+                'name' => $meetingName,
             ]
         );
 
         $response
             ->assertStatus(200)
             ->assertJson([
-                'success' => true
+                'success' => true,
             ]);
 
         $meeting = Meeting::first();
@@ -185,7 +206,10 @@ class MeetingTest extends TestCase
         $this->assertEquals($meetingName, $meeting->name);
     }
 
-    public function test_update_only_by_organizer()
+    /**
+     * @test
+     */
+    public function update_only_by_organizer()
     {
         $organizer = factory(User::class)->create();
         $user = factory(User::class)->create();
@@ -196,7 +220,7 @@ class MeetingTest extends TestCase
         $response = $this->actingAs($user, 'api')->putJson(
             route('api.meeting.update', ['meeting' => $meeting->getKey()]),
             [
-                'name' => 'Fake Meeting'
+                'name' => 'Fake Meeting',
             ]
         );
 
@@ -204,7 +228,10 @@ class MeetingTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_delete()
+    /**
+     * @test
+     */
+    public function delete_will_delete_meeting()
     {
         $organizer = factory(User::class)->create();
 
@@ -218,13 +245,16 @@ class MeetingTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson([
-                'success' => true
+                'success' => true,
             ]);
 
         $this->assertEquals(0, Meeting::count());
     }
 
-    public function test_delete_only_by_organizer()
+    /**
+     * @test
+     */
+    public function delete_only_by_organizer()
     {
         $organizer = factory(User::class)->create();
         $user = factory(User::class)->create();

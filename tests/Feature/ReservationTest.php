@@ -2,18 +2,21 @@
 
 namespace Tests\Feature;
 
-use App\Models\Reservation;
-use App\Models\Meeting;
+use Tests\TestCase;
 use App\Models\User;
+use App\Models\Meeting;
+use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 class ReservationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_store()
+    /**
+     * @test
+     */
+    public function store()
     {
         $organizer = factory(User::class)->create();
         $meeting = factory(Meeting::class)->make();
@@ -29,14 +32,17 @@ class ReservationTest extends TestCase
             ->assertStatus(200)
             ->assertJson(['success' => true]);
 
-        $attend = $user->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+        $attend = $user->reservations()->whereHas('meeting', function (Builder $query) use ($meeting) {
             $query->where($meeting->getKeyName(), $meeting->getKey());
         })->first();
 
         $this->assertNotNull($attend);
     }
 
-    public function test_index()
+    /**
+     * @test
+     */
+    public function index()
     {
         $organizer = factory(User::class)->create();
         $meeting = factory(Meeting::class)->make();
@@ -60,20 +66,23 @@ class ReservationTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'rowCount' => 2
+                'rowCount' => 2,
             ])
             ->assertJsonFragment([
-                'attending' => Reservation::USER_ATTENDING
+                'attending' => Reservation::USER_ATTENDING,
             ])
             ->assertJsonFragment([
-                'user_id' => $user1->getKey()
+                'user_id' => $user1->getKey(),
             ])
             ->assertJsonFragment([
-                'user_id' => $user2->getKey()
+                'user_id' => $user2->getKey(),
             ]);
     }
 
-    public function test_show()
+    /**
+     * @test
+     */
+    public function show()
     {
         $organizer = factory(User::class)->create();
         $meeting = factory(Meeting::class)->make();
@@ -98,12 +107,15 @@ class ReservationTest extends TestCase
                 'attendee' => [
                     'meeting_id' => $meeting->id,
                     'user_id' => $user->id,
-                    'attending' => Reservation::USER_ATTENDING
-                ]
+                    'attending' => Reservation::USER_ATTENDING,
+                ],
             ]);
     }
 
-    public function test_update()
+    /**
+     * @test
+     */
+    public function update()
     {
         $meeting = factory(Meeting::class)->create();
 
@@ -120,17 +132,20 @@ class ReservationTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson([
-                'success' => true
+                'success' => true,
             ]);
 
-        $attend = $user->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+        $attend = $user->reservations()->whereHas('meeting', function (Builder $query) use ($meeting) {
             $query->where($meeting->getKeyName(), $meeting->getKey());
         })->first();
 
         $this->assertEquals(Reservation::USER_MAYBE_ATTENDING, $attend->attending);
     }
 
-    public function test_update_invalid_value()
+    /**
+     * @test
+     */
+    public function update_invalid_value()
     {
         $meeting = factory(Meeting::class)->create();
 
@@ -148,7 +163,10 @@ class ReservationTest extends TestCase
             ->assertStatus(422);
     }
 
-    public function test_delete()
+    /**
+     * @test
+     */
+    public function delete_will_delete_reservation()
     {
         $meeting = factory(Meeting::class)->create();
 
@@ -164,10 +182,10 @@ class ReservationTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson([
-                'success' => true
+                'success' => true,
             ]);
 
-        $attend = $user->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+        $attend = $user->reservations()->whereHas('meeting', function (Builder $query) use ($meeting) {
             $query->where($meeting->getKeyName(), $meeting->getKey());
         })->first();
 

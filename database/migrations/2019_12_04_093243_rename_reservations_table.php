@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Migrations\Migration;
 
 class RenameReservationsTable extends Migration
 {
@@ -12,11 +12,11 @@ class RenameReservationsTable extends Migration
      */
     public function up()
     {
-        if(Schema::hasTable('meetings_attendees')) {
+        if (Schema::hasTable('meetings_attendees')) {
             Schema::rename('meetings_attendees', 'reservations');
         }
         // handle edge case when someone executed the migration on the feature branch
-        if(Schema::hasTable('attends')) {
+        if (Schema::hasTable('attends')) {
             Schema::rename('meetings_attendees', 'reservations');
         }
     }
@@ -28,12 +28,12 @@ class RenameReservationsTable extends Migration
      */
     public function down()
     {
-        if(Schema::hasTable('reservations')) {
+        if (Schema::hasTable('reservations')) {
             Schema::rename('reservations', 'meetings_attendees');
         }
         // handle edge case when someone executed the migration on the feature branch
         // roll all the way back to initial state
-        if(Schema::hasTable('attends')) {
+        if (Schema::hasTable('attends')) {
             Schema::rename('reservations', 'meetings_attendees');
         }
     }

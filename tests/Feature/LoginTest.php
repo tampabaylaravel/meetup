@@ -11,7 +11,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class LoginTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithJWT;
+    use RefreshDatabase;
+    use InteractsWithJWT;
 
     /**
      * @var User
