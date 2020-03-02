@@ -18,10 +18,12 @@
     },
     "require-dev": {
         "facade/ignition": "^1.4",
+        "friendsofphp/php-cs-fixer": "^2.16",
         "fzaninotto/faker": "^1.4",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^3.0",
-        "phpunit/phpunit": "^8.0"
+        "phpunit/phpunit": "^8.0",
+        "squizlabs/php_codesniffer": "^3.5"
     },
     "config": {
         "optimize-autoloader": true,
@@ -59,6 +61,10 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "lint": [
+            "phpcs --standard=phpcs_ruleset.xml",
+            "php-cs-fixer fix --dry-run --diff --diff-format=udiff --ansi"
         ]
     }
 }
