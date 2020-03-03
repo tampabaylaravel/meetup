@@ -130,7 +130,7 @@ class MeetingTest extends TestCase
             route(
                 'api.meeting.show',
                 [
-                    'name' => $meeting1->name,
+                    'meeting' => $meeting1->id,
                 ]
             )
         );
@@ -139,7 +139,6 @@ class MeetingTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'rowCount' => 1,
             ])
             ->assertJsonFragment([
                 'name' => $meeting1->name,
