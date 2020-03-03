@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6c2d77029b7435b422fafe6b4a3fe8b8",
+    "content-hash": "36d3127db8268e8b74f9996ecf213d7b",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -3687,6 +3687,59 @@
                 "test"
             ],
             "time": "2016-01-20T08:20:44+00:00"
+        },
+        {
+            "name": "jtant/laravel-env-sync",
+            "version": "3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JulienTant/Laravel-Env-Sync.git",
+                "reference": "442c540029c7e412809c74ade645042597a8c1b4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JulienTant/Laravel-Env-Sync/zipball/442c540029c7e412809c74ade645042597a8c1b4",
+                "reference": "442c540029c7e412809c74ade645042597a8c1b4",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "5.*|^6.0",
+                "illuminate/events": "5.*|^6.0",
+                "illuminate/support": "5.*|^6.0",
+                "php": ">=7.1",
+                "vlucas/phpdotenv": "3.*"
+            },
+            "require-dev": {
+                "mikey179/vfsstream": "^1.6",
+                "mockery/mockery": "^1.0",
+                "orchestra/testbench": "~3.8|^4.0",
+                "phpunit/phpunit": "^7.5|^8.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Jtant\\LaravelEnvSync\\EnvSyncServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jtant\\LaravelEnvSync\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Julien Tant",
+                    "email": "julien@craftyx.fr"
+                }
+            ],
+            "description": "A package that makes sure that your .env file is in sync with your .env.example",
+            "time": "2020-03-04T16:09:54+00:00"
         },
         {
             "name": "mockery/mockery",

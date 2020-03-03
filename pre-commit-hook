@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
 composer run lint
+
+if ! php artisan env:check --reverse; then
+    php artisan env:diff
+fi
