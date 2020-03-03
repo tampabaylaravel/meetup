@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations;
+use Exception;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations;
 
 /**
  * Class Reservation
@@ -24,7 +25,9 @@ use Illuminate\Support\Str;
 class Reservation extends Model
 {
     const USER_ATTENDING = 'yes';
+
     const USER_NOT_ATTENDING = 'no';
+
     const USER_MAYBE_ATTENDING = 'maybe';
 
     const USER_RELATION_DOT_NOTATION = 'user.';
@@ -35,7 +38,7 @@ class Reservation extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'meeting_id', 'attending'
+        'user_id', 'meeting_id', 'attending',
     ];
 
     public static function attendingEnumeration()
@@ -46,12 +49,13 @@ class Reservation extends Model
     /**
      * @param $state
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setAttendingAttribute($state)
     {
-        if(!in_array($state, self::attendingEnumeration()))
-            throw new \Exception('Invalid attending state');
+        if (!in_array($state, self::attendingEnumeration())) {
+            throw new Exception('Invalid attending state');
+        }
 
         $this->attributes['attending'] = $state;
     }
@@ -75,23 +79,25 @@ class Reservation extends Model
     public function scopeSearch(Builder $builder, array $params = [])
     {
         return $builder->when(
-            isset($params['attending']), function (Builder $builder) use ($params) {
-            $builder->whereIn('attending', collect($params['attending']));
-        }, function (Builder $builder) use ($params) {
-            collect($params)
-                ->filter(fn($value, $key) => Str::startsWith($key, self::USER_RELATION_DOT_NOTATION))
-                ->each(
-                    function ($param, $field) use ($builder) {
-                        $builder->whereHas(
-                            'user',
-                            function ($query) use ($field, $param) {
-                                $relationshipAttribute = Str::after($field, self::USER_RELATION_DOT_NOTATION);
-                                $query->where($relationshipAttribute, $param);
-                            }
-                        );
-                    }
-                );
-        }
+            isset($params['attending']),
+            function (Builder $builder) use ($params) {
+                $builder->whereIn('attending', collect($params['attending']));
+            },
+            function (Builder $builder) use ($params) {
+                collect($params)
+                    ->filter(fn ($value, $key) => Str::startsWith($key, self::USER_RELATION_DOT_NOTATION))
+                    ->each(
+                        function ($param, $field) use ($builder) {
+                            $builder->whereHas(
+                                'user',
+                                function ($query) use ($field, $param) {
+                                    $relationshipAttribute = Str::after($field, self::USER_RELATION_DOT_NOTATION);
+                                    $query->where($relationshipAttribute, $param);
+                                }
+                            );
+                        }
+                    );
+            }
         );
     }
 }

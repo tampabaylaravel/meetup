@@ -4,13 +4,13 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
-use Firebase\JWT\JWT;
 use App\Traits\InteractsWithJWT;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserTest extends TestCase
 {
-    use RefreshDatabase, InteractsWithJWT;
+    use RefreshDatabase;
+    use InteractsWithJWT;
 
     /**
      * @var string
@@ -44,7 +44,7 @@ class UserTest extends TestCase
     public function tokenTest($statusCode, $token)
     {
         $this->getJson($this->route, [
-            'Authorization' => 'Bearer ' . $token
+            'Authorization' => 'Bearer ' . $token,
         ])->assertStatus($statusCode);
     }
 
@@ -79,7 +79,7 @@ class UserTest extends TestCase
     {
         $expiredToken = $this->createJWT($this->user, [
             'iat' => time(),
-            'exp' => time() - 1
+            'exp' => time() - 1,
         ]);
 
         $this->tokenTest(419, $expiredToken);

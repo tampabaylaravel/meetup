@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 
@@ -26,11 +25,6 @@ class ResetPasswordController extends Controller
      */
 
     use ResetsPasswords;
-
-    public function __invoke(Request $request)
-    {
-        return $this->reset($request);
-    }
 
     /**
      * Reset the given user's password.
@@ -76,5 +70,10 @@ class ResetPasswordController extends Controller
     protected function sendResetFailedResponse(Request $request, $response)
     {
         return $this->sendResetResponse($request, $response);
+    }
+
+    public function __invoke(Request $request)
+    {
+        return $this->reset($request);
     }
 }

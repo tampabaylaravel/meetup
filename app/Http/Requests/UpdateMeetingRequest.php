@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Meeting;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateMeetingRequest extends FormRequest
@@ -25,11 +24,11 @@ class UpdateMeetingRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'        => 'string|min:5|max:64',
+            'name' => 'string|min:5|max:64',
             'description' => 'string',
-            'location'    => 'string|max:128',
-            'start_time'  => 'date|after:yesterday',
-            'end_time'    => 'date|after:start_time'
+            'location' => 'string|max:128',
+            'start_time' => 'date|after:yesterday',
+            'end_time' => 'date|after:start_time',
         ];
     }
 }

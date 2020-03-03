@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="Custom Standard" namespace="Meetup">
+    <description>A custom coding standard</description>
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+    <file>app</file>
+</ruleset>

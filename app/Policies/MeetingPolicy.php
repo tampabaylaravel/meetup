@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\Meeting;
 use App\Models\User;
+use App\Models\Meeting;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class MeetingPolicy
@@ -18,7 +18,6 @@ class MeetingPolicy
      */
     public function viewAny(User $user)
     {
-        //
     }
 
     /**

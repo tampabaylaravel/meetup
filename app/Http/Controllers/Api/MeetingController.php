@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use Exception;
+use App\Models\Meeting;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMeetingRequest;
 use App\Http\Requests\UpdateMeetingRequest;
-use App\Models\Meeting;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class MeetingController extends Controller
 {
@@ -24,9 +25,9 @@ class MeetingController extends Controller
 
         return response()->json(
             [
-                'success'  => true,
+                'success' => true,
                 'meetings' => $meetings,
-                'rowCount' => $meetings->count()
+                'rowCount' => $meetings->count(),
             ]
         );
     }
@@ -46,7 +47,7 @@ class MeetingController extends Controller
             [
                 'success' => ($meeting !== null),
                 'message' => 'Successfully created the meeting',
-                'meeting' => $meeting
+                'meeting' => $meeting,
             ],
             201
         );
@@ -64,7 +65,7 @@ class MeetingController extends Controller
         return response()->json(
             [
                 'success' => ($meeting !== null),
-                'meeting' => $meeting
+                'meeting' => $meeting,
             ]
         );
     }
@@ -84,7 +85,7 @@ class MeetingController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'message' => 'Successfully updated meeting'
+                'message' => 'Successfully updated meeting',
             ]
         );
     }
@@ -96,7 +97,7 @@ class MeetingController extends Controller
      * @param Meeting $meeting
      *
      * @return JsonResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy(UpdateMeetingRequest $request, Meeting $meeting)
     {
@@ -105,7 +106,7 @@ class MeetingController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'message' => 'Successfully deleted meeting'
+                'message' => 'Successfully deleted meeting',
             ]
         );
     }

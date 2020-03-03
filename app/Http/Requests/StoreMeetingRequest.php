@@ -25,11 +25,11 @@ class StoreMeetingRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'        => 'required|string|min:5|max:64',
+            'name' => 'required|string|min:5|max:64',
             'description' => 'string',
-            'location'    => 'string|max:128',
-            'start_time'  => 'date|after:yesterday',
-            'end_time'    => 'date|after:start_time'
+            'location' => 'string|max:128',
+            'start_time' => 'date|after:yesterday',
+            'end_time' => 'date|after:start_time',
         ];
     }
 }

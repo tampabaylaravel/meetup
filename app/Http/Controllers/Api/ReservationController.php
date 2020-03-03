@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\UpdateReservationRequest;
-use App\Models\Reservation;
-use App\Http\Controllers\Controller;
-use App\Models\Meeting;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
+use App\Models\Meeting;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
+use App\Http\Requests\UpdateReservationRequest;
 
 class ReservationController extends Controller
 {
@@ -30,9 +30,9 @@ class ReservationController extends Controller
 
         return response()->json(
             [
-                'success'  => true,
+                'success' => true,
                 'attendees' => $attendees,
-                'rowCount' => $attendees->count()
+                'rowCount' => $attendees->count(),
             ]
         );
     }
@@ -57,7 +57,7 @@ class ReservationController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'message' => 'Successfully set user as attending the meeting'
+                'message' => 'Successfully set user as attending the meeting',
             ]
         );
     }
@@ -72,14 +72,14 @@ class ReservationController extends Controller
      */
     public function show(Meeting $meeting, User $user)
     {
-        $attend = $user->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+        $attend = $user->reservations()->whereHas('meeting', function (Builder $query) use ($meeting) {
             $query->where($meeting->getKeyName(), $meeting->getKey());
         })->first();
 
         return response()->json(
             [
                 'success' => ($attend !== null),
-                'attendee' => $attend
+                'attendee' => $attend,
             ]
         );
     }
@@ -96,16 +96,16 @@ class ReservationController extends Controller
      */
     public function update(UpdateReservationRequest $request, Meeting $meeting)
     {
-        /* @var Reservation $attend */
-        $attend = $request->user()->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+        // @var Reservation $attend
+        $attend = $request->user()->reservations()->whereHas('meeting', function (Builder $query) use ($meeting) {
             $query->where($meeting->getKeyName(), $meeting->getKey());
         })->first();
 
-        if($attend === null) {
+        if ($attend === null) {
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Specified user is not attending the meeting'
+                    'message' => 'Specified user is not attending the meeting',
                 ],
                 404
             );
@@ -113,11 +113,11 @@ class ReservationController extends Controller
 
         $attend->attending = $request->input('attending');
 
-        if($attend->save() == false) {
+        if ($attend->save() == false) {
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Error setting attending status'
+                    'message' => 'Error setting attending status',
                 ],
                 403
             );
@@ -126,7 +126,7 @@ class ReservationController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'message' => 'Successfully updated attending status'
+                'message' => 'Successfully updated attending status',
             ]
         );
     }
@@ -143,16 +143,16 @@ class ReservationController extends Controller
      */
     public function destroy(Request $request, Meeting $meeting)
     {
-        /* @var Reservation $attend */
-        $attend = $request->user()->reservations()->whereHas('meeting', function(Builder $query) use ($meeting) {
+        // @var Reservation $attend
+        $attend = $request->user()->reservations()->whereHas('meeting', function (Builder $query) use ($meeting) {
             $query->where($meeting->getKeyName(), $meeting->getKey());
         })->first();
 
-        if($attend === null) {
+        if ($attend === null) {
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Specified user is not attending the meeting'
+                    'message' => 'Specified user is not attending the meeting',
                 ],
                 404
             );
@@ -160,11 +160,11 @@ class ReservationController extends Controller
 
         $attend->attending = Reservation::USER_NOT_ATTENDING;
 
-        if($attend->save() == false) {
+        if ($attend->save() == false) {
             return response()->json(
                 [
                     'success' => false,
-                    'message' => 'Error setting attending status'
+                    'message' => 'Error setting attending status',
                 ],
                 403
             );
@@ -173,7 +173,7 @@ class ReservationController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'message' => 'Successfully updated attending status'
+                'message' => 'Successfully updated attending status',
             ]
         );
     }
