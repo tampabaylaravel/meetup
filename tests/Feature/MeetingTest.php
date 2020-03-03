@@ -118,6 +118,36 @@ class MeetingTest extends TestCase
     /**
      * @test
      */
+    public function show_meeting()
+    {
+        $organizer = factory(User::class)->create();
+        $user = factory(User::class)->create();
+
+        $meeting1 = factory(Meeting::class)->make();
+        $organizer->meetings()->save($meeting1);
+
+        $response = $this->actingAs($user, 'api')->getJson(
+            route(
+                'api.meeting.show',
+                [
+                    'meeting' => $meeting1->id,
+                ]
+            )
+        );
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ])
+            ->assertJsonFragment([
+                'name' => $meeting1->name,
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function search_found_partial_name()
     {
         $organizer = factory(User::class)->create();
