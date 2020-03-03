@@ -135,8 +135,6 @@ class MeetingTest extends TestCase
             )
         );
 
-        $response->dump();
-
         $response
             ->assertStatus(200)
             ->assertJson([
