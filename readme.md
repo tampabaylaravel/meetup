@@ -1,3 +1,5 @@
+![Tests](https://github.com/tampabaylaravel/meetup/workflows/Tests/badge.svg)
+
 ## Authentication
 This app uses JWT for user authentication.
 
