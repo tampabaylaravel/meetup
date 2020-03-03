@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/
+ */
 
 Route::group([
     'prefix' => 'auth',
     'as' => 'auth.',
     'namespace' => 'Auth',
-], function() {
+], function () {
     Route::post('login', 'LoginController@store')->name('login');
     Route::post('register', 'RegisterController@store')->name('register');
     Route::post('forgot', 'ForgotPasswordController')->name('forgot');
@@ -26,20 +26,20 @@ Route::group([
 });
 
 Route::group([
-    'prefix' => 'user',
+    'prefix' => 'users',
     'as' => 'user.',
     'middleware' => 'auth:api',
-], function() {
+], function () {
     Route::get('/', function (Request $request) {
         return $request->user();
     })->name('index');
 });
 
 Route::group([
-    'prefix' => 'meeting',
+    'prefix' => 'meetings',
     'as' => 'api.meeting.',
     'namespace' => 'Api',
-    'middleware' => ['auth:api']
+    'middleware' => ['auth:api'],
 ], function () {
     Route::get('/', 'MeetingController@index')->name('list');
     Route::post('/', 'MeetingController@store')->name('create');
@@ -47,11 +47,11 @@ Route::group([
     Route::put('/{meeting}', 'MeetingController@update')->name('update');
     Route::delete('/{meeting}', 'MeetingController@destroy')->name('delete');
 
-    Route::get('/{meeting}/reservation', 'ReservationController@index')->name('reservation.list');
-    Route::get('/{meeting}/reservation/{user}', 'ReservationController@show')->name('reservation.show');
+    Route::get('/{meeting}/reservations', 'ReservationController@index')->name('reservation.list');
+    Route::get('/{meeting}/reservations/{user}', 'ReservationController@show')->name('reservation.show');
     // in the following methods:
     //   the user is gotten from the request to ensure only the logged in user can affect their reservation
-    Route::post('/{meeting}/reservation', 'ReservationController@store')->name('reservation.create');
-    Route::put('/{meeting}/reservation', 'ReservationController@update')->name('reservation.update');
-    Route::delete('/{meeting}/reservation', 'ReservationController@destroy')->name('reservation.delete');
+    Route::post('/{meeting}/reservations', 'ReservationController@store')->name('reservation.create');
+    Route::put('/{meeting}/reservations', 'ReservationController@update')->name('reservation.update');
+    Route::delete('/{meeting}/reservations', 'ReservationController@destroy')->name('reservation.delete');
 });
