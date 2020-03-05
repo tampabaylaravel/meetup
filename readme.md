@@ -1,5 +1,27 @@
 ![Tests](https://github.com/tampabaylaravel/meetup/workflows/Tests/badge.svg)
 
+## Environment
+We use [Laravel-Env-Sync](https://github.com/JulienTant/Laravel-Env-Sync) to
+keep track of our environment variable files.
+
+Verify `.env` is in sync with `.env.example`:
+
+```sh
+$ php artisan env:check
+```
+
+Verify `.env.example` has everything from `.env`:
+
+```sh
+$ php artisan env:check --reverse
+```
+
+View all differences between `.env` and `.env.example`:
+
+```sh
+$ php artisan env:diff
+```
+
 ## Authentication
 This app uses JWT for user authentication.
 
@@ -34,3 +56,6 @@ the editor plugins can only warn you. With that in mind, I recommend using both
 the editor plugin (to automatically make changes) and the pre-commit-hook. In
 an ideal scenario the pre-commit-hook won't fail, but it's better to fail
 locally before getting to CI.
+
+Additionally, the `pre-commit-hook` runs the reverse check to help keep
+`.env.example` up to date.
