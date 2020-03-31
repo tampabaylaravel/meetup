@@ -13,7 +13,9 @@ jobs:
       - name: Run Linter
         run: composer run lint
       - name: Setup Database
-        run: mysql --port 3306 -u root -proot -e 'CREATE DATABASE IF NOT EXISTS laravel;'
+        run: |
+          sudo systemctl start mysql
+          mysql --port 3306 -u root -proot -e 'CREATE DATABASE IF NOT EXISTS laravel;'
       - name: Prepare Laravel
         run: |
           cp .env.example .env
